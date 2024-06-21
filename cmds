@@ -1,0 +1,100 @@
+   34  cat cat app/__init__.py 
+   35  cat cat app/main.py 
+   36  cp ../music_service/
+   37  cp ../../flac_lib/*.py .
+   38  ls
+   39  cat split_flac.py 
+   40  cp split_flac.py app/
+   41  cat cat app/main.py 
+   42  vim app/main.py 
+   43  sudo docker-compose build
+   44  sudo -i
+   45  ls
+   46  cd //volume1/docker/music_service
+   47  docker-compose build
+   48  docker-compose -f docker-compose.yaml up
+   49  docker-compose -f docker-compose.yaml up
+   50  cat docker -compose
+   51  cat docker-compose
+   52  cat docker-compose.yaml 
+   53  vim Dockerfile 
+   54  docker-compose build
+   55  docker-compose -f docker-compose.yaml up
+   56  ls
+   57  cat run.py 
+   58  vim run.py 
+   59  cat split_flac.py 
+   60  cd app/
+   61  ls
+   62  cat split_flac.py 
+   63  vim split_flac.py 
+   64  ls
+   65  vim main.py 
+   66  vim main.py 
+   67  ls
+   68  cat __init__.py 
+   69  docker-compose build
+   70  docker-compose -f docker-compose.yaml up
+   71  cd .
+   72  cd ..
+   73  docker-compose -f docker-compose.yaml up
+   74  cat app/split_flac.py 
+   75  vim app/split_flac.py 
+   76  docker-compose build
+   77  docker-compose -f docker-compose.yaml up
+   78  cat __init__.py 
+   79  vim app/main.py 
+   80  app/split_flac.py 
+   81  python app/split_flac.py 
+   82  vim app/main.py 
+   83  docker-compose build
+   84  docker-compose -f docker-compose.yaml up
+   85  vim app/main.py 
+   86  cd /volume1/downloads/testing/
+   87  ks'
+   88  l
+   89  ls
+   90  ls ../
+   91  mv ../Various\ Artists\ -\ Metal\ Massacre\ \(Collection\)\ \(1982\ -\ 2021\)/ .
+   92  ls
+   93  ls
+   94  ls -latr
+   95  top
+   96  ls
+   97  cd /volume1/docker/music_service/
+   98  ls
+   99  vim app/split_flac.py 
+  100  sudo docker-compose -f docker-compose.yaml down;sudo docker-compose build;sudo docker-compose -f docker-compose.yaml up
+  101  vim Dockerfile 
+  102  vim docker-compose.yaml 
+  103  cat ../gluetun/docker-compose 
+  104  :q
+  105  vim docker-compose.yaml 
+  106  sudo docker-compose -f docker-compose.yaml down;sudo docker-compose build;sudo docker-compose -f docker-compose.yaml up
+  107  vim docker-compose.yaml 
+  108  sudo docker-compose -f docker-compose.yaml down;sudo docker-compose build;sudo docker-compose -f docker-compose.yaml up
+  109  vim app/split_flac.py 
+  110  vim docker-compose.yaml 
+  111  cat ../gluetun/docker-compose 
+  112  vim docker-compose.yaml 
+  113  vim app/split_flac.py 
+  114  sudo docker-compose -f docker-compose.yaml down;sudo docker-compose build;sudo docker-compose -f docker-compose.yaml up
+  115  vim Dockerfile 
+  116  sudo docker-compose -f docker-compose.yaml down;sudo docker-compose build;sudo docker-compose -f docker-compose.yaml up
+  117  vim docker-compose.yaml 
+  118  cat Dockerfile 
+  119  vim  Dockerfile 
+  120  sudo docker-compose -f docker-compose.yaml down;sudo docker-compose build;sudo docker-compose -f docker-compose.yaml up
+  121  vim  Dockerfile 
+  122  vim  Dockerfile 
+  123  sudo docker-compose -f docker-compose.yaml down;sudo docker-compose build;sudo docker-compose -f docker-compose.yaml up
+  124  vim  Dockerfile 
+  125  vim docker-compose.yaml 
+  126  sudo docker-compose -f docker-compose.yaml up
+  127  vim  Dockerfile 
+  128  vim docker-compose.yaml 
+  129  vim app/main.py 
+  130  sudo docker-compose -f docker-compose.yaml down;sudo docker-compose build;sudo docker-compose -f docker-compose.yaml up
+  131  vim docker-compose.yaml 
+  132  sudo docker-compose -f docker-compose.yaml down;sudo docker-compose build;sudo docker-compose -f docker-compose.yaml up
+  133  history > cmds

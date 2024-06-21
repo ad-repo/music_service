@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    network_mode: "host"
+    ports:
+      - "9111:9111"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PUID=0
+      - PGID=0
+      - FLASK_APP=run.py
+    command: python -u run.py
+    volumes:
+      - /volume1/downloads/testing:/testing_dir
+      - /volume1/downloads/split_dir:/split_dir
