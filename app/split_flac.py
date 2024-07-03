@@ -5,15 +5,20 @@ import shutil
 import subprocess
 import uuid
 from datetime import datetime
+from socket import gethostname
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 FFMPEG = "ffmpeg"
-#FFMPEG = "./ffmpeg"
+DOCKER_SPLIT_VOLUME = "/split_dir"
+DEV_BOX =  "ad-mbp.lan"
+DEV_BOX_FFMPEG = "./ffmpeg"
 FILE_TYPES = ['flac']
 APE_RENAME_STR = "ignore"
+UNIGNORE_APE = False
+IGNORE_APE = True
+PERM_IGNORE_APE = False
 FLAC_RENAME_STR = "extracted"
-
 
 import chardet
 
@@ -24,6 +29,12 @@ def detect_encoding(file_path):
     encoding = result['encoding']
     confidence = result['confidence']
     return encoding if confidence > 0.8 else None
+
+
+def get_track_length_2(duration):
+    d = [x for x in duration if "Duration:" in x]
+    d1= d[0].split(",")[0].split("Duration: ")[1]
+    return d1
 
 
 def get_track_length(file_path):
@@ -39,11 +50,21 @@ def get_track_length(file_path):
         duration = duration_line[0].split(',')[0].split()[1]
         logging.debug(f'Duration: {duration}')
         parts = duration.split(':')
-        h = int(parts[0])
-        min = int(parts[1])
-        sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
-        ms = int(parts[2].split('.')[1])  # Extract milliseconds
-        formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+        try:
+            h = int(parts[0])
+            min = int(parts[1])
+            sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
+            ms = int(parts[2].split('.')[1])  # Extract milliseconds
+            formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+        except Exception as e:
+            duration = get_track_length_2(duration_line)
+            parts = duration.split(':')
+            h = int(parts[0])
+            min = int(parts[1])
+            sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
+            ms = int(parts[2].split('.')[1])  # Extract milliseconds
+            formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+
         return formatted_duration
     return None
 
@@ -260,34 +281,29 @@ def parse_folder(cue_file, base_dir, sim_mode):
     run_service(cue_file, music_file, cue_dir, base_dir, file_ext, sim_mode)
 
 
-def find_music_folders(base_dir, sim_mode):
+def find_music_folders(base_dir, sim_mode=False):
     for root, dirs, files in os.walk(base_dir):
         for file in files:
-            if file.endswith(".ape"):
+            if file.endswith(".ape") and PERM_IGNORE_APE:
                 os.rename(os.path.join(root, file), os.path.join(root, f"{file}.{APE_RENAME_STR}"))
             if file.endswith(".cue"):
                 logging.info(f"Found cue file: {file}, {root}")
                 parse_folder(os.path.join(root, file), base_dir, sim_mode)
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--simulate', action='store_true', default=False, help='simulate, no ffmpeg')
+    parser.add_argument('--base_dir', type=str, help='music base dir')
+    return parser.parse_args()
+
 if __name__ == '__main__':
-    # Initialize argument parser
-    #parser = argparse.ArgumentParser(description='Process some files.')
 
-    # Add simulate boolean flag
-    #parser.add_argument('--simulate', action='store_true', help='Run in simulation mode without making any changes.')
-
-    # Add file path argument
-    #parser.add_argument('--fp', type=str, help='The path to the file to be processed.')
-
-    # Parse arguments
-    #args = parser.parse_args()
-
-    # Logging setup
-    #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-
-    # Log the parsed arguments
-    #logging.info(f'Simulate: {args.simulate}')
-    #logging.info(f'File path: {args.file_path}')
-    find_music_folders("/split_dir", False)
-    #find_music_folders(args.fp, False)
+    # run for local development, no docker
+    if gethostname() == DEV_BOX:
+        globals()["FFMPEG"] = DEV_BOX_FFMPEG
+        args = parse_args()
+        find_music_folders(args.base_dir, args.simulate)
+    else:
+        # docker running
+        find_music_folders(DOCKER_SPLIT_VOLUME)

@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y ffmpeg && apt-get clean
 
 # Install the Python dependencies
 RUN pip install --upgrade pip
-RUN pip install chardet
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose port 9111 for the Flask app
