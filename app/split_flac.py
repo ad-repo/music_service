@@ -31,13 +31,33 @@ def detect_encoding(file_path):
     return encoding if confidence > 0.8 else None
 
 
-def get_track_length_2(duration):
-    d = [x for x in duration if "Duration:" in x]
+def get_track_length_1(duration_line):
+    d = duration_line[0].split(',')[0].split()[1]
+    parts = d.split(':')
+    h, min, sec, ms = extract_times(parts)
+    return parts
+
+
+def get_track_length_2(duration_line):
+    d = [x for x in duration_line if "Duration:" in x]
     d1= d[0].split(",")[0].split("Duration: ")[1]
-    return d1
+    parts = d1.split(':')
+    h, min, sec, ms = extract_times(parts)
+    formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+    return formatted_duration
+
+
+def extract_times(parts):
+    h = int(parts[0])
+    min = int(parts[1])
+    sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
+    ms = int(parts[2].split('.')[1])  # Extract milliseconds
+    formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+    return formatted_duration
 
 
 def get_track_length(file_path):
+    formatted_duration = None
     result = subprocess.run(
         [FFMPEG, '-i', file_path],
         stderr=subprocess.PIPE,
@@ -47,23 +67,29 @@ def get_track_length(file_path):
     duration_line = [line for line in result.stderr.split('\n') if "Duration" in line]
     logging.debug(f'Duration line: {duration_line}')
     if duration_line:
-        duration = duration_line[0].split(',')[0].split()[1]
-        logging.debug(f'Duration: {duration}')
-        parts = duration.split(':')
+        # duration = duration_line[0].split(',')[0].split()[1]
+        # logging.debug(f'Duration: {duration}')
+        # parts = duration.split(':')
+        # parts = get_track_length_1(duration_line)
         try:
-            h = int(parts[0])
-            min = int(parts[1])
-            sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
-            ms = int(parts[2].split('.')[1])  # Extract milliseconds
-            formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+            # h, min, sec, ms = extract_times(parts)
+            # h = int(parts[0])
+            # min = int(parts[1])
+            # sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
+            # ms = int(parts[2].split('.')[1])  # Extract milliseconds
+            # formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+            fomatted_duration = get_track_length_1(duration_line)
         except Exception as e:
-            duration = get_track_length_2(duration_line)
-            parts = duration.split(':')
-            h = int(parts[0])
-            min = int(parts[1])
-            sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
-            ms = int(parts[2].split('.')[1])  # Extract milliseconds
-            formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+            # duration = get_track_length_2(duration_line)
+            # parts = duration.split(':')
+            # parts = get_track_length_2(duration_line)
+            # h, min, sec, ms = extract_times(parts)
+            # h = int(parts[0])
+            # min = int(parts[1])
+            # sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
+            # ms = int(parts[2].split('.')[1])  # Extract milliseconds
+            # formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+            formatted_duration = get_track_length_2(duration_line)
 
         return formatted_duration
     return None
@@ -114,9 +140,7 @@ def convert_crlf_to_lf_utf8(input_file, output_file):
         outfile.write(content)
 
 
-
 def fix_cue_file(cuefile):
-
     if not detect_encoding(cuefile):
         #raise ValueError("------ CUE ERROR CUE ERROR -------- Unable to detect encoding with high confidence.")
         print("------ CUE ERROR CUE ERROR -------- Unable to detect encoding with high confidence.")
