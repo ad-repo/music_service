@@ -6,9 +6,9 @@ from socket import gethostname
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 FFMPEG = "ffmpeg"
-DOCKER_FLAC_VOLUME = "/testing_dir/flac"
-DOCKER_MP3_VOLUME = "/testing_dir/mp3"
-DEV_BOX =  "ad-mbp.lan"
+DOCKER_FLAC_VOLUME = "/flac_dir"
+DOCKER_MP3_VOLUME = "/mp3_dir"
+DEV_BOX = "ad-mbp.lan"
 DEV_BOX_FFMPEG = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ffmpeg")
 
 
@@ -22,9 +22,8 @@ def convert(flac_path, mp3_path):
 def convert_flac_to_mp3(source_dir, dest_dir):
     print(f"Converting flac to mp3 {source_dir} {dest_dir}")
     for root, dirs, files in os.walk(source_dir):
-        print(f"root {root}, dirs: {dirs}, files: {files}")
         for file in files:
-            print(f"Converting {file}")
+            logging.info(f"Converting {file}")
             if file.lower().endswith('.flac'):
                 flac_path = os.path.join(root, file)
                 relative_path = os.path.relpath(root, source_dir)
