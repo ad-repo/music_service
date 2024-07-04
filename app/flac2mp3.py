@@ -6,7 +6,7 @@ from socket import gethostname
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 FFMPEG = "ffmpeg"
-DOCKER_FLAC_VOLUME = "/testing/flac"
+DOCKER_FLAC_VOLUME = "/testing"
 DOCKER_MP3_VOLUME = "/testing/mp3"
 DEV_BOX =  "ad-mbp.lan"
 DEV_BOX_FFMPEG = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ffmpeg")
