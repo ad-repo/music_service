@@ -34,16 +34,15 @@ def detect_encoding(file_path):
 def get_track_length_1(duration_line):
     d = duration_line[0].split(',')[0].split()[1]
     parts = d.split(':')
-    h, min, sec, ms = extract_times(parts)
-    return parts
+    formatted_duration = extract_times(parts)
+    return formatted_duration
 
 
 def get_track_length_2(duration_line):
     d = [x for x in duration_line if "Duration:" in x]
     d1= d[0].split(",")[0].split("Duration: ")[1]
     parts = d1.split(':')
-    h, min, sec, ms = extract_times(parts)
-    formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+    formatted_duration = extract_times(parts)
     return formatted_duration
 
 
@@ -53,6 +52,7 @@ def extract_times(parts):
     sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
     ms = int(parts[2].split('.')[1])  # Extract milliseconds
     formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
+
     return formatted_duration
 
 
