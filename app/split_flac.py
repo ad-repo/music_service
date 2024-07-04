@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 FFMPEG = "ffmpeg"
 DOCKER_SPLIT_VOLUME = "/split_dir"
 DEV_BOX =  "ad-mbp.lan"
-DEV_BOX_FFMPEG = "./ffmpeg"
+DEV_BOX_FFMPEG = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ffmpeg")
 FILE_TYPES = ['flac']
 APE_RENAME_STR = "ignore"
 UNIGNORE_APE = False
@@ -32,18 +32,27 @@ def detect_encoding(file_path):
 
 
 def get_track_length_1(duration_line):
+    """
+    duration_line could be in several formats
+    ['  Duration: 00:57:42.61, start: 0.000000, bitrate: 999 kb/s']
+    :param duration_line:
+    :return:
+    """
     d = duration_line[0].split(',')[0].split()[1]
     parts = d.split(':')
-    formatted_duration = extract_times(parts)
-    return formatted_duration
+    return extract_times(parts)
 
 
 def get_track_length_2(duration_line):
+    """
+    duration_line could be in several formats
+    :param duration_line:
+    :return:
+    """
     d = [x for x in duration_line if "Duration:" in x]
     d1= d[0].split(",")[0].split("Duration: ")[1]
     parts = d1.split(':')
-    formatted_duration = extract_times(parts)
-    return formatted_duration
+    return extract_times(parts)
 
 
 def extract_times(parts):
@@ -52,7 +61,7 @@ def extract_times(parts):
     sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
     ms = int(parts[2].split('.')[1])  # Extract milliseconds
     formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
-
+    logging.debug(f"Formatted duration: {formatted_duration}")
     return formatted_duration
 
 
@@ -68,10 +77,11 @@ def get_track_length(file_path):
     logging.debug(f'Duration line: {duration_line}')
     if duration_line:
         try:
-            fomatted_duration = get_track_length_1(duration_line)
+            print("1")
+            return get_track_length_1(duration_line)
         except Exception as e:
-            formatted_duration = get_track_length_2(duration_line)
-        return formatted_duration
+            print("2")
+            return get_track_length_2(duration_line)
     return None
 
 
@@ -205,6 +215,7 @@ def get_track_times(cue_data, flac_file, pos):
     track_start_end_times = cue_data[b'INDEX'][pos:pos + 2]
 
     if len(track_start_end_times) == 1:
+        logging.warning("going to try to get track length")
         track_start_end_times.append(get_track_length(flac_file))
 
     logging.debug(f'Track start and end times: {track_start_end_times}')
@@ -307,7 +318,7 @@ if __name__ == '__main__':
     if gethostname() == DEV_BOX:
         globals()["FFMPEG"] = DEV_BOX_FFMPEG
         args = parse_args()
-        find_music_folders(args.base_dir, args.simulate)
+        find_music_folders("/Users/ad/Projects/music_service/test_data")
     else:
         # docker running
         find_music_folders(DOCKER_SPLIT_VOLUME)
