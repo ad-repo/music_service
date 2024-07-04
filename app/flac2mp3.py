@@ -12,11 +12,23 @@ DEV_BOX = "ad-mbp.lan"
 DEV_BOX_FFMPEG = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ffmpeg")
 
 
-def convert(flac_path, mp3_path):
+def _convert(flac_path, mp3_path):
     command = [
-        FFMPEG, '-i', flac_path, '-b:a', '320k', '-map_metadata', '0', mp3_path
+        FFMPEG, '-i', flac_path, '-f', 'flac', '-b:a', '320k', '-map_metadata', '0', mp3_path
     ]
     subprocess.run(command, check=True)
+
+
+def convert(flac_path, mp3_path, dest_dir):
+    if os.path.exists(mp3_path):
+        logging.warning(f"exists: {mp3_path}")
+        return
+    try:
+        _convert(flac_path, mp3_path)
+    except Exception as e:
+        logging.error(f"ERROR {mp3_path}")
+        with open(os.path.join(dest_dir, "ERRORS.out"), "a+") as f:
+            f.write(f"{mp3_path}\n")
 
 
 def convert_flac_to_mp3(source_dir, dest_dir):
@@ -30,12 +42,7 @@ def convert_flac_to_mp3(source_dir, dest_dir):
                 mp3_dir = os.path.join(dest_dir, relative_path)
                 os.makedirs(mp3_dir, exist_ok=True)
                 mp3_path = os.path.join(mp3_dir, os.path.splitext(file)[0] + '.mp3')
-
-                if os.path.exists(mp3_path):
-                    logging.warning(f"exists: {mp3_path}")
-                    continue
-
-                convert(flac_path, mp3_path)
+                convert(flac_path, mp3_path, dest_dir)
 
 
 if __name__ == '__main__':
