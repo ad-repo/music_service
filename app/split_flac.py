@@ -67,30 +67,10 @@ def get_track_length(file_path):
     duration_line = [line for line in result.stderr.split('\n') if "Duration" in line]
     logging.debug(f'Duration line: {duration_line}')
     if duration_line:
-        # duration = duration_line[0].split(',')[0].split()[1]
-        # logging.debug(f'Duration: {duration}')
-        # parts = duration.split(':')
-        # parts = get_track_length_1(duration_line)
         try:
-            # h, min, sec, ms = extract_times(parts)
-            # h = int(parts[0])
-            # min = int(parts[1])
-            # sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
-            # ms = int(parts[2].split('.')[1])  # Extract milliseconds
-            # formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
             fomatted_duration = get_track_length_1(duration_line)
         except Exception as e:
-            # duration = get_track_length_2(duration_line)
-            # parts = duration.split(':')
-            # parts = get_track_length_2(duration_line)
-            # h, min, sec, ms = extract_times(parts)
-            # h = int(parts[0])
-            # min = int(parts[1])
-            # sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
-            # ms = int(parts[2].split('.')[1])  # Extract milliseconds
-            # formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
             formatted_duration = get_track_length_2(duration_line)
-
         return formatted_duration
     return None
 
