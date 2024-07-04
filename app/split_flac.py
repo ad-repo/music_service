@@ -253,14 +253,6 @@ def run_service(cue_file, music_file, music_outdir_fpath, base_dir, ext, sim_mod
         cleanup(music_file, base_dir)
 
 
-# def find_cue_file(files, music_indir_fpath):
-#     for file in files:
-#         if file.lower().endswith('.cue'):
-#             cue_file = os.path.join(music_indir_fpath, file)
-#             fix_cue_file(cue_file)
-#             return cue_file
-
-
 def find_music_file(cue_file, music_indir_fpath):
     for file_ext in FILE_TYPES:
         root, ext = os.path.splitext(cue_file)
