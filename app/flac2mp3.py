@@ -20,8 +20,10 @@ def convert(flac_path, mp3_path):
 
 
 def convert_flac_to_mp3(source_dir, dest_dir):
+    print(f"Converting flac to mp3 {source_dir} {dest_dir}")
     for root, dirs, files in os.walk(source_dir):
         for file in files:
+            print(f"Converting {file}")
             if file.lower().endswith('.flac'):
                 flac_path = os.path.join(root, file)
                 relative_path = os.path.relpath(root, source_dir)
