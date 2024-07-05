@@ -79,6 +79,7 @@ def convert_flac_to_mp3(source_dir, dest_dir):
                 mp3_path = os.path.join(mp3_dir, os.path.splitext(file)[0] + '.mp3')
                 convert(flac_path, mp3_path, dest_dir)
                 add_track_to_db(flac_path, mp3_path)
+                exit()
 
 
 
