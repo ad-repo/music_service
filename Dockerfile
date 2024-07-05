@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg ffprobe && \
+    apt-get install -y --no-install-recommends ffmpeg ffprobe vim && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
