@@ -23,7 +23,6 @@ def run_split_script():
         return str(e), 500
 
 
-
 @main.route('/flac2mp3', methods=['GET'])
 @swag_from({
     'responses': {

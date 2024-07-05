@@ -47,11 +47,11 @@ def convert_flac_to_mp3(source_dir, dest_dir):
 
 if __name__ == '__main__':
 
-    # run for local development, no docker
+    # run for local development, no docker, no global ffmpeg installed
     if gethostname() == DEV_BOX:
         globals()["FFMPEG"] = DEV_BOX_FFMPEG
         convert_flac_to_mp3("/Users/ad/Projects/music_service/test_data",
                             "/Users/ad/Projects/music_service/test_data_out")
     else:
-        # docker running on nas
+        # docker running on the nas with ffmpeg globally installed
         convert_flac_to_mp3(DOCKER_FLAC_VOLUME, DOCKER_MP3_VOLUME)
