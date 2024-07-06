@@ -3,7 +3,6 @@ import logging
 import os
 import subprocess
 from typing import Optional, Dict, Any
-
 from tinydb import TinyDB, Query
 
 from helpers import CaseInsensitiveDict, NoMetadataException
@@ -46,8 +45,7 @@ class Track:
 
     def track_exists(self, db) -> str:
         query = Query()
-        return db.search((query.flac_filename == self.flac_filename) &
-                                   (query.mp3_filename == self.mp3_filename))
+        return db.search((query.flac_filename == self.flac_filename))
 
     def save_to_db(self, db: TinyDB) -> None:
         if not self.has_metadata():
@@ -102,7 +100,7 @@ class Track:
             artist=metadata_ci.get('artist'),
             title=metadata_ci.get('title'),
             album=metadata_ci.get('album'),
-            bitrate=metadata_ci.get('bitrate'),
+            bitrate=metadata_ci.get('flac_bit_rate'),
             genre=metadata_ci.get('genre'),
             year=metadata_ci.get('date'),
             duration=metadata_ci.get('duration'),
