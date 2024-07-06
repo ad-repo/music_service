@@ -1,26 +1,19 @@
-import argparse
 import logging
 import os
 import shutil
 import subprocess
 import uuid
 from datetime import datetime
-from socket import gethostname
 
 import chardet
 
+from constants import APE_RENAME_STR, DOCKER_SPLIT_VOLUME, ENV, FLAC_RENAME_STR, FILE_TYPES
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-FFMPEG = "ffmpeg"
-DOCKER_SPLIT_VOLUME = "/split_dir"
-DEV_BOX = "ad-mbp.lan"
-DEV_BOX_FFMPEG = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ffmpeg")
-FILE_TYPES = ['flac']
-APE_RENAME_STR = "ignore"
 UNIGNORE_APE = False
 IGNORE_APE = True
 PERM_IGNORE_APE = False
-FLAC_RENAME_STR = "extracted"
 
 
 def detect_encoding(file_path):
@@ -69,7 +62,7 @@ def extract_times(parts):
 def get_track_length(file_path):
     formatted_duration = None
     result = subprocess.run(
-        [FFMPEG, '-i', file_path],
+        [os.environ.get("FFMPEG"), '-i', file_path],
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
         text=True
@@ -152,7 +145,7 @@ def fix_cue_file(cuefile):
 
 
 def cuedata(pth):
-    METADATA = {b"TITLE": [], b"PERFORMER": [], b"INDEX": [], b"REM COMPOSER": []}
+    metadata = {b"TITLE": [], b"PERFORMER": [], b"INDEX": [], b"REM COMPOSER": []}
     logging.debug(f'Cue data path: {pth}')
     with open(pth, "+r", encoding="utf-8") as ff:
         f = ff.read()
@@ -163,15 +156,15 @@ def cuedata(pth):
     for i in ff:
         logging.debug(f'i: {i}')
         for spi in i.split(b"\n"):
-            for ky in METADATA:
+            for ky in metadata:
                 if ky in spi:
                     if ky == b"INDEX":
                         spi = spi.split(ky)[1].strip().split(b" ")[1]
                     else:
                         spi = spi.split(ky)[1].strip().strip(b'""')
-                    METADATA[ky].append(spi)
+                    metadata[ky].append(spi)
                     break
-    return METADATA
+    return metadata
 
 
 def chaff(time):
@@ -226,7 +219,7 @@ def get_track_times(cue_data, flac_file, pos):
 
 
 def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile):
-    cmd = [FFMPEG, "-hide_banner", "-ss", stime, "-y", "-i", flac_file, "-t", diff, "-map", "0",
+    cmd = [os.environ.get("FFMPEG"), "-hide_banner", "-ss", stime, "-y", "-i", flac_file, "-t", diff, "-map", "0",
            "-metadata", title, "-metadata", artist, "-metadata", f'track={pos}', flac_outfile]
     job = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     logging.debug(f'FFmpeg job output: {job}')
@@ -299,20 +292,11 @@ def find_music_folders(base_dir, sim_mode=False):
                 parse_folder(os.path.join(root, file), base_dir, sim_mode)
 
 
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--simulate', action='store_true', default=False, help='simulate, no ffmpeg')
-    parser.add_argument('--base_dir', type=str, help='music base dir')
-    return parser.parse_args()
-
-
 if __name__ == '__main__':
 
-    # run for local development, no docker
-    if gethostname() == DEV_BOX:
-        globals()["FFMPEG"] = DEV_BOX_FFMPEG
-        args = parse_args()
-        find_music_folders("/Users/ad/Projects/music_service/test_data")
-    else:
-        # docker running
+    # docker running
+    if os.environ.get('ENV') == "":
         find_music_folders(DOCKER_SPLIT_VOLUME)
+    else:
+        # run for local development, no docker
+        find_music_folders("/Users/ad/Projects/music_service/test_data")
