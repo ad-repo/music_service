@@ -19,7 +19,7 @@ main = Blueprint('main', __name__)
 })
 def run_split_script():
     try:
-        result = subprocess.run(['python', "-u", 'split_flac.py'], capture_output=True, text=True)
+        result = subprocess.run(['python', "-u", 'app/split_flac.py'], capture_output=True, text=True)
         return f"Script output:\n{result.stdout}\n\n{result.stderr}"
     except Exception as e:
         return str(e), 500
@@ -38,10 +38,8 @@ def run_split_script():
 })
 def run_mp3_script():
     print("foo", os.path.abspath(os.path.curdir))
-    os.chdir(os.path.join(os.path.abspath(os.path.curdir),"app," "src"))
-    print("foo", os.path.abspath(os.path.curdir))
     try:
-        result = subprocess.run(['python', "-u", 'src/flac2mp3.py'], capture_output=True, text=True)
+        result = subprocess.run(['python', "-u", 'app/flac2mp3.py'], capture_output=True, text=True)
         return f"Script output:\n{result.stdout}\n\n{result.stderr}"
     except Exception as e:
         return str(e), 500

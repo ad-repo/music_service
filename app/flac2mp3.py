@@ -6,7 +6,7 @@ from constants import DOCKER_MP3_VOLUME, DOCKER_FLAC_VOLUME, ROOT_DIR
 from db import Track, db_factory
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler("../app.log"),
+    logging.FileHandler("app.log"),
     logging.StreamHandler()
 ])
 
