@@ -57,6 +57,7 @@ class Track:
         else:
             logging.info(f"inserting in db - {self.flac_filename}")
             db.insert(self.__dict__)
+            commpleted_tracks.append(self.flac_filename)
 
     @staticmethod
     def from_json(json_str: str) -> 'Track':
