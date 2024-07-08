@@ -1,3 +1,5 @@
+import os.path
+
 from flask import Blueprint
 import subprocess
 from flasgger import swag_from
@@ -16,6 +18,7 @@ main = Blueprint('main', __name__)
     }
 })
 def run_split_script():
+    print("foo",os.path.curdir)
     try:
         result = subprocess.run(['python', "-u", 'app/src/split_flac.py'], capture_output=True, text=True)
         return f"Script output:\n{result.stdout}\n\n{result.stderr}"
