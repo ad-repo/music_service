@@ -48,10 +48,11 @@ class Track:
         query = Query()
         return db.search((query.flac_filename == self.flac_filename))
 
-    def save_to_db(self, db: TinyDB) -> None:
+    def save_to_db(self, db: TinyDB, commpleted_tracks: list) -> None:
         if not self.has_metadata():
             logging.warning(logging.warning(f"no metadata for {self.flac_filename}"))
-        elif self.track_exists(db):
+        # elif self.track_exists(db):
+        elif self.flac_filename in commpleted_tracks:
             logging.warning(f"db record exists {self.flac_filename}")
         else:
             logging.info(f"inserting in db - {self.flac_filename}")

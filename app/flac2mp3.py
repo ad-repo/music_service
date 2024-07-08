@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
     logging.StreamHandler()
 ])
 
+# global completed_tracks
 
 def _convert(flac_path, mp3_path):
     command = [
@@ -30,19 +31,20 @@ def convert(flac_path, mp3_path, dest_dir):
             f.write(f"{mp3_path}\n")
 
 
-def go(mp3_dir, flac_path, mp3_path, dest_dir, database):
+def go(mp3_dir, flac_path, mp3_path, dest_dir, database, completed_tracks):
+    print(completed_tracks)
     os.makedirs(mp3_dir, exist_ok=True)
     convert(flac_path, mp3_path, dest_dir)
-    Track().from_flac(flac_path, mp3_path).save_to_db(database)
+    Track().from_flac(flac_path, mp3_path).save_to_db(database, completed_tracks)
+    completed_tracks.append(flac_path)
 
 
 def convert_flac_to_mp3(source_dir: str, dest_dir: str):
     logging.info(f"using db {os.environ.get('DATABASE_FILE')}")
     database = db_factory()
+    completed_tracks = []
     logging.info(f"Converting flac to mp3 - SRC {source_dir} DEST {dest_dir}")
     for root, dirs, files in os.walk(source_dir):
-        print(root)
-        continue
         for file in files:
             if file.lower().endswith('.flac'):
                 logging.info(f"Converting {file}")
@@ -50,7 +52,7 @@ def convert_flac_to_mp3(source_dir: str, dest_dir: str):
                 relative_path = os.path.relpath(root, source_dir)
                 mp3_dir = os.path.join(dest_dir, relative_path)
                 mp3_path = os.path.join(mp3_dir, os.path.splitext(file)[0] + '.mp3')
-                go(mp3_dir, flac_path, mp3_path, dest_dir, database)
+                go(mp3_dir, flac_path, mp3_path, dest_dir, database, completed_tracks)
 
 
 if __name__ == '__main__':

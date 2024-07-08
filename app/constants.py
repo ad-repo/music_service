@@ -1,7 +1,7 @@
 import os
 from socket import gethostname
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 DEV_BOX = "ad-mbp.lan"
 FFMPEG = "ffmpeg"
 FFPROBE = "ffprobe"
