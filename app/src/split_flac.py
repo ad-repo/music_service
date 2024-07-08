@@ -7,9 +7,12 @@ from datetime import datetime
 
 import chardet
 
-from constants import APE_RENAME_STR, DOCKER_SPLIT_VOLUME, ENV, FLAC_RENAME_STR, FILE_TYPES
+from constants import APE_RENAME_STR, DOCKER_SPLIT_VOLUME, FLAC_RENAME_STR, FILE_TYPES, ROOT_DIR
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
+    logging.FileHandler("app.log"),
+    logging.StreamHandler()
+])
 
 UNIGNORE_APE = False
 IGNORE_APE = True
@@ -299,4 +302,4 @@ if __name__ == '__main__':
         find_music_folders(DOCKER_SPLIT_VOLUME)
     else:
         # run for local development, no docker
-        find_music_folders("/Users/ad/Projects/music_service/test_data")
+        find_music_folders(os.path.join(ROOT_DIR, "test_data"))

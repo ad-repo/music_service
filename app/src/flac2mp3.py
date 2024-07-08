@@ -2,11 +2,11 @@ import logging
 import os
 import subprocess
 
-from constants import (DOCKER_MP3_VOLUME, DOCKER_FLAC_VOLUME)
+from constants import DOCKER_MP3_VOLUME, DOCKER_FLAC_VOLUME, ROOT_DIR
 from db import Track, db_factory
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler("app.log"),
+    logging.FileHandler("../app.log"),
     logging.StreamHandler()
 ])
 
@@ -26,7 +26,7 @@ def convert(flac_path, mp3_path, dest_dir):
         _convert(flac_path, mp3_path)
     except Exception as e:
         logging.error(f"ERROR {mp3_path}")
-        with open(os.path.join(dest_dir, "ERRORS.out"), "a+") as f:
+        with open(os.path.join(os.path.dirname(__file__), "mp3_convert_errors.txt"), "a+") as f:
             f.write(f"{mp3_path}\n")
 
 
@@ -41,6 +41,8 @@ def convert_flac_to_mp3(source_dir: str, dest_dir: str):
     database = db_factory()
     logging.info(f"Converting flac to mp3 - SRC {source_dir} DEST {dest_dir}")
     for root, dirs, files in os.walk(source_dir):
+        print(root)
+        continue
         for file in files:
             if file.lower().endswith('.flac'):
                 logging.info(f"Converting {file}")
@@ -57,5 +59,5 @@ if __name__ == '__main__':
         convert_flac_to_mp3(DOCKER_FLAC_VOLUME, DOCKER_MP3_VOLUME)
     else:
         # run for local development, no docker, no global ffmpeg installed
-        convert_flac_to_mp3("/Users/ad/Projects/music_service/test_data",
-                            "/Users/ad/Projects/music_service/test_data_out")
+        convert_flac_to_mp3(os.path.join(ROOT_DIR, "test_data"),
+                            os.path.join(ROOT_DIR, "test_data_out"))

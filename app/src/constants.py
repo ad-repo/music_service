@@ -1,14 +1,15 @@
 import os
 from socket import gethostname
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DEV_BOX = "ad-mbp.lan"
 FFMPEG = "ffmpeg"
 FFPROBE = "ffprobe"
 DB_FILENAME = "music_database.json"
 DATABASE_FILE = f"/db/{DB_FILENAME}"
-DEV_BOX_DATABASE_FILE = os.path.join(os.path.dirname(__file__), DB_FILENAME)
-DEV_BOX_FFPROBE = os.path.join(os.path.dirname(os.path.dirname(__file__)), FFPROBE)
-DEV_BOX_FFMPEG = os.path.join(os.path.dirname(os.path.dirname(__file__)), FFMPEG)
+DEV_BOX_DATABASE_FILE = os.path.join(ROOT_DIR, "app", DB_FILENAME)
+DEV_BOX_FFPROBE = os.path.join(ROOT_DIR, "app", FFPROBE)
+DEV_BOX_FFMPEG = os.path.join(ROOT_DIR, "app", FFMPEG)
 
 FILE_TYPES = ['flac']
 DOCKER_FLAC_VOLUME = "/flac_dir"

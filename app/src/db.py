@@ -3,6 +3,7 @@ import logging
 import os
 import subprocess
 from typing import Optional, Dict, Any
+
 from tinydb import TinyDB, Query
 
 from helpers import CaseInsensitiveDict, NoMetadataException
@@ -76,7 +77,8 @@ class Track:
         else:
             raise NoMetadataException
 
-    def get_metadata(self, flac_file, mp3_file) -> Dict[str, Any]:
+    @staticmethod
+    def get_metadata(flac_file, mp3_file) -> Dict[str, Any]:
         command = [os.environ.get("FFPROBE"), "-v", "quiet", "-print_format", "json", "-show_format", flac_file]
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
