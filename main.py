@@ -20,7 +20,7 @@ main = Blueprint('main', __name__)
 def run_split_script():
     print("foo",os.path.curdir)
     try:
-        result = subprocess.run(['python', "-u", 'app/src/split_flac.py'], capture_output=True, text=True)
+        result = subprocess.run(['python', "-u", 'split_flac.py'], capture_output=True, text=True)
         return f"Script output:\n{result.stdout}\n\n{result.stderr}"
     except Exception as e:
         return str(e), 500
