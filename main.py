@@ -37,7 +37,7 @@ def run_split_script():
     }
 })
 def run_mp3_script():
-    print("foo", os.path.curdir)
+    print("foo", os.path.abspath(os.path.curdir))
     try:
         result = subprocess.run(['python', "-u", 'src/flac2mp3.py'], capture_output=True, text=True)
         return f"Script output:\n{result.stdout}\n\n{result.stderr}"
