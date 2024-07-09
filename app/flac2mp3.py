@@ -43,7 +43,6 @@ def convert_flac_to_mp3(source_dir: str, dest_dir: str):
     logging.info(f"using db {os.environ.get('DATABASE_FILE')}")
     # database = db_factory()
     create_db()
-    completed_tracks = []
     logging.info(f"Converting flac to mp3 - SRC {source_dir} DEST {dest_dir}")
     for root, dirs, files in os.walk(source_dir):
         for file in files:

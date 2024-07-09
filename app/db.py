@@ -44,6 +44,8 @@ def create_db():
     );
     '''
 
+    logging.info(create_table_query)
+
     # Execute the create table command
     cursor.execute(create_table_query)
     conn.commit()
