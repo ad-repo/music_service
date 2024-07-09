@@ -3,7 +3,9 @@ import os
 import subprocess
 
 from constants import DOCKER_MP3_VOLUME, DOCKER_FLAC_VOLUME, ROOT_DIR
-from db import Track, db_factory
+from db import Track
+from db import create_db
+
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     logging.FileHandler("app.log"),
@@ -31,17 +33,16 @@ def convert(flac_path, mp3_path, dest_dir):
             f.write(f"{mp3_path}\n")
 
 
-def go(mp3_dir, flac_path, mp3_path, dest_dir, database, completed_tracks):
-    print(completed_tracks)
+def go(mp3_dir, flac_path, mp3_path, dest_dir):
     os.makedirs(mp3_dir, exist_ok=True)
     convert(flac_path, mp3_path, dest_dir)
-    Track().from_flac(flac_path, mp3_path).save_to_db(database, completed_tracks)
-    completed_tracks.append(flac_path)
+    Track().from_flac(flac_path, mp3_path).save_to_db()
 
 
 def convert_flac_to_mp3(source_dir: str, dest_dir: str):
     logging.info(f"using db {os.environ.get('DATABASE_FILE')}")
-    database = db_factory()
+    # database = db_factory()
+    create_db()
     completed_tracks = []
     logging.info(f"Converting flac to mp3 - SRC {source_dir} DEST {dest_dir}")
     for root, dirs, files in os.walk(source_dir):
@@ -52,7 +53,7 @@ def convert_flac_to_mp3(source_dir: str, dest_dir: str):
                 relative_path = os.path.relpath(root, source_dir)
                 mp3_dir = os.path.join(dest_dir, relative_path)
                 mp3_path = os.path.join(mp3_dir, os.path.splitext(file)[0] + '.mp3')
-                go(mp3_dir, flac_path, mp3_path, dest_dir, database, completed_tracks)
+                go(mp3_dir, flac_path, mp3_path, dest_dir)
 
 
 if __name__ == '__main__':

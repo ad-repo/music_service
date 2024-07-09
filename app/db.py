@@ -2,22 +2,52 @@ import json
 import logging
 import os
 import subprocess
+import sqlite3
 from typing import Optional, Dict, Any
-
-from tinydb import TinyDB, Query
 
 from helpers import CaseInsensitiveDict, NoMetadataException
 
 
-def db_factory():
-    if os.environ.get("DELETE_DATABASE_FILE") != "":
-        logging.warning(f"Deleting database file {'DATABASE_FILE'}")
-        try:
-            os.remove(os.environ.get('DATABASE_FILE'))
-        except FileNotFoundError:
-            logging.warning(f"delete failed did not find {os.environ.get('DATABASE_FILE')}")
-        os.environ.update({"DELETE_DATABASE_FILE": ""})
-    return TinyDB(os.environ.get('DATABASE_FILE'))
+# def db_factory():
+#     if os.environ.get("DELETE_DATABASE_FILE") != "":
+#         logging.warning(f"Deleting database file {'DATABASE_FILE'}")
+#         try:
+#             os.remove(os.environ.get('DATABASE_FILE'))
+#         except FileNotFoundError:
+#             logging.warning(f"delete failed did not find {os.environ.get('DATABASE_FILE')}")
+#         os.environ.update({"DELETE_DATABASE_FILE": ""})
+#     return TinyDB(os.environ.get('DATABASE_FILE'))
+
+import sqlite3
+
+def create_db():
+    # Create a connection to the SQLite database (it will create the database if it does not exist)
+    conn = sqlite3.connect(os.environ.get('DATABASE_FILE'))
+
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+
+    # SQL command to create the 'track' table if it does not exist
+    create_table_query = '''
+    CREATE TABLE IF NOT EXISTS track (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        artist TEXT,
+        title TEXT,
+        album TEXT,
+        bitrate INTEGER,
+        genre TEXT,
+        year INTEGER,
+        rating INTEGER,
+        duration REAL,
+        flac_filename TEXT UNIQUE,
+        mp3_filename TEXT
+    );
+    '''
+
+    # Execute the create table command
+    cursor.execute(create_table_query)
+    conn.commit()
+    conn.close()
 
 
 class Track:
@@ -29,7 +59,6 @@ class Track:
         self.artist: Optional[str] = kwargs.get('artist')
         self.title: Optional[str] = kwargs.get('title')
         self.album: Optional[str] = kwargs.get('album')
-        self.encoding: Optional[str] = kwargs.get('encoding')
         self.bitrate: Optional[int] = kwargs.get('bitrate')
         self.genre: Optional[str] = kwargs.get('genre')
         self.year: Optional[int] = kwargs.get('year')
@@ -38,31 +67,35 @@ class Track:
         self.flac_filename: Optional[str] = kwargs.get('flac_filename')
         self.mp3_filename: Optional[str] = kwargs.get('mp3_filename')
 
-    def to_json(self) -> str:
-        return json.dumps(self, default=lambda o: o.__dict__)
-
     def has_metadata(self) -> bool:
         return any([x for x in self.__dict__.values()])
 
-    def track_exists(self, db) -> str:
-        query = Query()
-        return db.search((query.flac_filename == self.flac_filename))
-
-    def save_to_db(self, db: TinyDB, commpleted_tracks: list) -> None:
+    def save_to_db(self) -> None:
         if not self.has_metadata():
             logging.warning(logging.warning(f"no metadata for {self.flac_filename}"))
-        # elif self.track_exists(db):
-        elif self.flac_filename in commpleted_tracks:
-            logging.warning(f"db record exists {self.flac_filename}")
         else:
             logging.info(f"inserting in db - {self.flac_filename}")
-            db.insert(self.__dict__)
-            commpleted_tracks.append(self.flac_filename)
+            conn = sqlite3.connect('music_service.db')
+            cursor = conn.cursor()
 
-    @staticmethod
-    def from_json(json_str: str) -> 'Track':
-        data: Dict[str, Any] = json.loads(json_str)
-        return Track(**data)
+            insert_query = f'''
+            INSERT INTO track ({','.join([k for k, v in self.__dict__.items() if v is not None])})
+            VALUES ({','.join(['?' for k, v in self.__dict__.items() if v is not None])})
+            '''
+
+            values = tuple(v for k, v in self.__dict__.items() if v is not None)
+
+            try:
+                # Execute the insert command
+                cursor.execute(insert_query, values)
+                # Commit the changes
+                conn.commit()
+                print(f"Track '{self.title}' by '{self.artist}' has been created successfully.")
+            except sqlite3.IntegrityError as e:
+                print(f"Error: {self.flac_filename} already exists")
+            finally:
+                # Close the connection
+                conn.close()
 
     @staticmethod
     def format_metadata(result: subprocess.CompletedProcess, flac_filename: str, mp3_filename: str) -> dict:
