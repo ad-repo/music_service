@@ -97,7 +97,6 @@ class Track:
             except sqlite3.IntegrityError as e:
                 print(f"Error: {self.flac_filename} already exists")
             finally:
-                # Close the connection
                 conn.close()
 
     @staticmethod
@@ -115,6 +114,22 @@ class Track:
         else:
             raise NoMetadataException
 
+    def check_if_metadata_exists(self, flac_filename) -> bool:
+        query = "SELECT artist FROM track WHERE flac_filename = ?"
+        conn = sqlite3.connect(os.environ.get('DATABASE_FILE'))
+        cursor = conn.cursor()
+
+        cursor.execute(query, (flac_filename,))
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+        logging.info(result)
+        return result is not None
+
+
+
+
     @staticmethod
     def get_metadata(flac_file, mp3_file) -> Dict[str, Any]:
         command = [os.environ.get("FFPROBE"), "-v", "quiet", "-print_format", "json", "-show_format", flac_file]
@@ -127,6 +142,9 @@ class Track:
         return Track.format_metadata(result, flac_file, mp3_file)
 
     def from_flac(self, flac_file, mp3_file) -> 'Track':
+        if self.check_if_metadata_exists(flac_file):
+            logging.warning(f"exists in db {flac_file} skipping")
+            raise ValueError
         try:
             metadata = self.get_metadata(flac_file, mp3_file)
         except NoMetadataException as e:

@@ -20,7 +20,7 @@ FLAC_RENAME_STR = "extracted"
 
 # local development no docker
 if gethostname() == DEV_BOX:
-    os.environ.update({"DELETE_DATABASE_FILE": "True"})
+    os.environ.update({"DELETE_DATABASE_FILE": ""})
     os.environ.update({"ENV": DEV_BOX})
     os.environ.update({"FFMPEG": DEV_BOX_FFMPEG})
     os.environ.update({"FFPROBE": DEV_BOX_FFPROBE})

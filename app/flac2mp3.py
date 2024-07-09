@@ -6,11 +6,11 @@ from constants import DOCKER_MP3_VOLUME, DOCKER_FLAC_VOLUME, ROOT_DIR
 from db import Track
 from db import create_db
 
-
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
     logging.FileHandler("app.log"),
     logging.StreamHandler()
 ])
+
 
 # global completed_tracks
 
@@ -23,7 +23,7 @@ def _convert(flac_path, mp3_path):
 
 def convert(flac_path, mp3_path, dest_dir):
     if os.path.exists(mp3_path):
-        logging.warning(f"skip convert - mp3 exists: {mp3_path} for {flac_path}")
+        logging.warning(f"skip mp3 conversion - mp3 exists: {mp3_path} for {flac_path}")
         return
     try:
         _convert(flac_path, mp3_path)
@@ -36,12 +36,14 @@ def convert(flac_path, mp3_path, dest_dir):
 def go(mp3_dir, flac_path, mp3_path, dest_dir):
     os.makedirs(mp3_dir, exist_ok=True)
     convert(flac_path, mp3_path, dest_dir)
-    Track().from_flac(flac_path, mp3_path).save_to_db()
+    try:
+        Track().from_flac(flac_path, mp3_path).save_to_db()
+    except ValueError as e:
+        return
 
 
 def convert_flac_to_mp3(source_dir: str, dest_dir: str):
     logging.info(f"using db {os.environ.get('DATABASE_FILE')}")
-    # database = db_factory()
     create_db()
     logging.info(f"Converting flac to mp3 - SRC {source_dir} DEST {dest_dir}")
     for root, dirs, files in os.walk(source_dir):
