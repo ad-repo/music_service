@@ -106,8 +106,8 @@ class Track:
 
         if 'format' in raw_metadata and 'tags' in raw_metadata['format']:
             metadata.update({k.lower(): v for k, v in raw_metadata['format']['tags'].items()})
-            metadata["flac_bit_rate"] = raw_metadata['format']['bit_rate']
-            metadata["duration"] = raw_metadata['format']['duration']
+            metadata["flac_bit_rate"] = raw_metadata['format'].get('bit_rate', None)
+            metadata["duration"] = raw_metadata['format'].get('duration', None)
             metadata["flac_filename"] = flac_filename
             metadata["mp3_filename"] = mp3_filename
             return metadata
