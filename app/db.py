@@ -40,7 +40,8 @@ def create_db():
         rating INTEGER,
         duration REAL,
         flac_filename TEXT UNIQUE,
-        mp3_filename TEXT
+        mp3_filename TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     '''
 
@@ -77,7 +78,7 @@ class Track:
             logging.warning(logging.warning(f"no metadata for {self.flac_filename}"))
         else:
             logging.info(f"inserting in db - {self.flac_filename}")
-            conn = sqlite3.connect('music_service.db')
+            conn = sqlite3.connect(os.environ.get('DATABASE_FILE'))
             cursor = conn.cursor()
 
             insert_query = f'''
