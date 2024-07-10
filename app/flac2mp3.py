@@ -6,13 +6,29 @@ from constants import DOCKER_MP3_VOLUME, DOCKER_FLAC_VOLUME, ROOT_DIR
 from db import Track
 from db import create_db
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler("app.log"),
-    logging.StreamHandler()
-])
+import sys
 
+# Configure logging to capture both stdout and stderr
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log', mode='w'),
+        logging.StreamHandler(sys.stdout),  # To log to stdout
+        logging.StreamHandler(sys.stderr)   # To log to stderr
+    ]
+)
 
-# global completed_tracks
+# Define a handler for uncaught exceptions
+def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        # Call the default excepthook saved at __excepthook__
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+# Set the global exception handler to our handler
+sys.excepthook = handle_uncaught_exception
 
 def _convert(flac_path, mp3_path):
     command = [
@@ -41,11 +57,7 @@ def go(mp3_dir, flac_path, mp3_path, dest_dir):
     except ValueError as e:
         return
 
-
-def convert_flac_to_mp3(source_dir: str, dest_dir: str):
-    logging.info(f"using db {os.environ.get('DATABASE_FILE')}")
-    create_db()
-    logging.info(f"Converting flac to mp3 - SRC {source_dir} DEST {dest_dir}")
+def walk(source_dir: str, dest_dir: str):
     for root, dirs, files in os.walk(source_dir):
         for file in files:
             if file.lower().endswith('.flac'):
@@ -55,6 +67,13 @@ def convert_flac_to_mp3(source_dir: str, dest_dir: str):
                 mp3_dir = os.path.join(dest_dir, relative_path)
                 mp3_path = os.path.join(mp3_dir, os.path.splitext(file)[0] + '.mp3')
                 go(mp3_dir, flac_path, mp3_path, dest_dir)
+
+
+def convert_flac_to_mp3(source_dir: str, dest_dir: str):
+    logging.info(f"using db {os.environ.get('DATABASE_FILE')}")
+    create_db()
+    logging.info(f"Converting flac to mp3 - SRC {source_dir} DEST {dest_dir}")
+    walk(source_dir, dest_dir)
 
 
 if __name__ == '__main__':

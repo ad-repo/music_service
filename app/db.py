@@ -1,30 +1,15 @@
 import json
 import logging
 import os
-import subprocess
 import sqlite3
+import subprocess
 from typing import Optional, Dict, Any
 
 from helpers import CaseInsensitiveDict, NoMetadataException
 
 
-# def db_factory():
-#     if os.environ.get("DELETE_DATABASE_FILE") != "":
-#         logging.warning(f"Deleting database file {'DATABASE_FILE'}")
-#         try:
-#             os.remove(os.environ.get('DATABASE_FILE'))
-#         except FileNotFoundError:
-#             logging.warning(f"delete failed did not find {os.environ.get('DATABASE_FILE')}")
-#         os.environ.update({"DELETE_DATABASE_FILE": ""})
-#     return TinyDB(os.environ.get('DATABASE_FILE'))
-
-import sqlite3
-
 def create_db():
-    # Create a connection to the SQLite database (it will create the database if it does not exist)
     conn = sqlite3.connect(os.environ.get('DATABASE_FILE'))
-
-    # Create a cursor object to interact with the database
     cursor = conn.cursor()
 
     # SQL command to create the 'track' table if it does not exist
@@ -46,8 +31,6 @@ def create_db():
     '''
 
     logging.info(create_table_query)
-
-    # Execute the create table command
     cursor.execute(create_table_query)
     conn.commit()
     conn.close()
@@ -85,7 +68,6 @@ class Track:
             INSERT INTO track ({','.join([k for k, v in self.__dict__.items() if v is not None])})
             VALUES ({','.join(['?' for k, v in self.__dict__.items() if v is not None])})
             '''
-
             values = tuple(v for k, v in self.__dict__.items() if v is not None)
 
             try:
@@ -93,9 +75,9 @@ class Track:
                 cursor.execute(insert_query, values)
                 # Commit the changes
                 conn.commit()
-                print(f"Track '{self.title}' by '{self.artist}' has been created successfully.")
+                logging.info(f"Track '{self.title}' by '{self.artist}' has been created successfully.")
             except sqlite3.IntegrityError as e:
-                print(f"Error: {self.flac_filename} already exists")
+                logging.info(f"Error: {self.flac_filename} already exists")
             finally:
                 conn.close()
 
@@ -126,9 +108,6 @@ class Track:
         conn.close()
         logging.info(result)
         return result is not None
-
-
-
 
     @staticmethod
     def get_metadata(flac_file, mp3_file) -> Dict[str, Any]:

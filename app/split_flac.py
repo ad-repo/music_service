@@ -2,6 +2,7 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import uuid
 from datetime import datetime
 
@@ -9,10 +10,29 @@ import chardet
 
 from constants import APE_RENAME_STR, DOCKER_SPLIT_VOLUME, FLAC_RENAME_STR, FILE_TYPES, ROOT_DIR
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
-    logging.FileHandler("app.log"),
-    logging.StreamHandler()
-])
+# Configure logging to capture both stdout and stderr
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log', mode='w'),
+        logging.StreamHandler(sys.stdout),  # To log to stdout
+        logging.StreamHandler(sys.stderr)  # To log to stderr
+    ]
+)
+
+
+# Define a handler for uncaught exceptions
+def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        # Call the default excepthook saved at __excepthook__
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+
+# Set the global exception handler to our handler
+sys.excepthook = handle_uncaught_exception
 
 UNIGNORE_APE = False
 IGNORE_APE = True
@@ -296,7 +316,6 @@ def find_music_folders(base_dir, sim_mode=False):
 
 
 if __name__ == '__main__':
-
     # docker running
     if os.environ.get('ENV') == "":
         find_music_folders(DOCKER_SPLIT_VOLUME)
