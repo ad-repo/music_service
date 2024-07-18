@@ -32,7 +32,7 @@ sys.excepthook = handle_uncaught_exception
 
 def _convert(flac_path, mp3_path):
     command = [
-        os.environ.get("FFMPEG"), '-i', flac_path, '-f', 'flac', '-b:a', '320k', '-map_metadata', '0', mp3_path
+        os.environ.get("FFMPEG"), '-i', flac_path, '-ab', '320k', '-map_metadata', '0', '-id3v2_version', '3', mp3_path
     ]
     subprocess.run(command, check=True)
 
