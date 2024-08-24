@@ -8,7 +8,7 @@ from datetime import datetime
 
 import chardet
 
-from constants import APE_RENAME_STR, DOCKER_SPLIT_VOLUME, FLAC_RENAME_STR, FILE_TYPES, ROOT_DIR
+from constants import SPLIT_DIR, FLAC_RENAME_STR, FILE_TYPES, ROOT_DIR
 
 # Configure logging to capture both stdout and stderr
 logging.basicConfig(
@@ -74,7 +74,7 @@ def get_track_length_2(duration_line):
 
 def extract_times(parts):
     h = int(parts[0])
-    min = int(parts[1])
+    min = int(parts[1]) + (h*60)
     sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
     ms = int(parts[2].split('.')[1])  # Extract milliseconds
     formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
@@ -242,8 +242,34 @@ def get_track_times(cue_data, flac_file, pos):
 
 
 def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile):
-    cmd = [os.environ.get("FFMPEG"), "-hide_banner", "-ss", stime, "-y", "-i", flac_file, "-t", diff, "-map", "0",
-           "-metadata", title, "-metadata", artist, "-metadata", f'track={pos}', flac_outfile]
+    if flac_file.endswith('.flac'):
+        cmd = [os.environ.get("FFMPEG"),
+               "-hide_banner",
+               "-ss", stime,
+               "-y",
+               "-i", flac_file,
+               "-t", diff,
+               "-map", "0",
+               "-metadata", title,
+               "-metadata", artist,
+               "-metadata",
+               f'track={pos}',
+               flac_outfile]
+
+    elif flac_file.endswith('.ape'):
+        cmd = [os.environ.get("FFMPEG"),
+               "-hide_banner",
+               "-ss", stime,
+               "-y",
+               "-i", flac_file,
+               "-t", diff,
+               "-map", "0",
+               "-c", "flac",
+               "-metadata", title,
+               "-metadata", artist,
+               "-metadata", f'track={pos}',
+               flac_outfile]
+
     job = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     logging.debug(f'FFmpeg job output: {job}')
     return job
@@ -255,7 +281,7 @@ def run_service(cue_file, music_file, music_outdir_fpath, base_dir, ext, sim_mod
     for pos, title in enumerate(cue_data[b'TITLE']):
         logging.info(f'Processing track: {title}')
         title = title.decode('utf-8')
-        outfile = os.path.join(music_outdir_fpath, f'{fix_title(title)}.{ext}')
+        outfile = os.path.join(music_outdir_fpath, f'{fix_title(title)}.flac')
         title = f'title={title}'
         try:
             artist = 'artist=' + cue_data[b'PERFORMER'][pos].decode('utf-8')
@@ -269,18 +295,22 @@ def run_service(cue_file, music_file, music_outdir_fpath, base_dir, ext, sim_mod
     if not sim_mode:
         cleanup(music_file, base_dir)
 
-
 def find_music_file(cue_file, music_indir_fpath):
     for file_ext in FILE_TYPES:
         root, ext = os.path.splitext(cue_file)
-        music_file = f"{root}.{file_ext}"
+
+        if root.endswith(file_ext):
+            music_file = root
+        else:
+            music_file = f"{root}.{file_ext}"
+
         music_file = os.path.join(music_indir_fpath, music_file)
         logging.debug(f'-- {music_file}')
         if os.path.exists(music_file):
             music_file.replace("'", "")
             music_file.replace("'", "")
             return music_file, file_ext
-        return None, None
+    return None, None
 
 
 # def parse_folder(music_indir_fpath, music_outdir_fpath):
@@ -308,8 +338,6 @@ def parse_folder(cue_file, base_dir, sim_mode):
 def find_music_folders(base_dir, sim_mode=False):
     for root, dirs, files in os.walk(base_dir):
         for file in files:
-            if file.endswith(".ape") and PERM_IGNORE_APE:
-                os.rename(os.path.join(root, file), os.path.join(root, f"{file}.{APE_RENAME_STR}"))
             if file.endswith(".cue"):
                 logging.info(f"Found cue file: {file}, {root}")
                 parse_folder(os.path.join(root, file), base_dir, sim_mode)
@@ -317,8 +345,9 @@ def find_music_folders(base_dir, sim_mode=False):
 
 if __name__ == '__main__':
     # docker running
-    if os.environ.get('ENV') == "":
-        find_music_folders(DOCKER_SPLIT_VOLUME)
-    else:
-        # run for local development, no docker
-        find_music_folders(os.path.join(ROOT_DIR, "test_data"))
+    # if os.environ.get('ENV') == "":
+    #     find_music_folders(DOCKER_SPLIT_VOLUME)
+    # else:
+    #     # run for local development, no docker
+    #     find_music_folders(os.path.join(ROOT_DIR, DEV_BOX_SPLIT_DIR))
+    find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
