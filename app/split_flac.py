@@ -344,10 +344,4 @@ def find_music_folders(base_dir, sim_mode=False):
 
 
 if __name__ == '__main__':
-    # docker running
-    # if os.environ.get('ENV') == "":
-    #     find_music_folders(DOCKER_SPLIT_VOLUME)
-    # else:
-    #     # run for local development, no docker
-    #     find_music_folders(os.path.join(ROOT_DIR, DEV_BOX_SPLIT_DIR))
     find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
