@@ -240,8 +240,21 @@ def get_track_times(cue_data, flac_file, pos):
         'utf-8').strip()
     return stime, etime
 
+def get_map(audio_track_only):
+    if audio_track_only:
+        return "0:a"
+    return "0"
 
-def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile):
+"""
+1. add analysis of streams in the file using 
+    ffprobe -v error -show_streams inputfile or 
+    ffprobe -v error -show_entries stream=index,codec_type -of default=noprint_wrappers=1 input.ape
+2. extract each stream with 
+     "-map", "0:a",
+      "-map", "0:1",
+
+"""
+def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio_track_only):
     if flac_file.endswith('.flac'):
         cmd = [os.environ.get("FFMPEG"),
                "-hide_banner",
@@ -249,7 +262,8 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile):
                "-y",
                "-i", flac_file,
                "-t", diff,
-               "-map", "0",
+               "-map", get_map(audio_track_only),
+               "-max_muxing_queue_size", "9999",
                "-metadata", title,
                "-metadata", artist,
                "-metadata",
@@ -263,7 +277,8 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile):
                "-y",
                "-i", flac_file,
                "-t", diff,
-               "-map", "0",
+               "-map", get_map(audio_track_only),
+               "-max_muxing_queue_size", "9999",
                "-c", "flac",
                "-metadata", title,
                "-metadata", artist,
@@ -272,6 +287,10 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile):
 
     job = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     logging.debug(f'FFmpeg job output: {job}')
+
+    if job.returncode > 0:
+        raise Exception(f'FFmpeg failed for {title}')
+
     return job
 
 
@@ -291,7 +310,19 @@ def run_service(cue_file, music_file, music_outdir_fpath, base_dir, ext, sim_mod
         diff = str(timedif(stime, etime))
         stime = chaff(stime.rsplit(":", 1)[0])
         if not sim_mode:
-            job = create_track(music_file, stime, diff, title, artist, pos, outfile)
+            try:
+                job = create_track(music_file, stime, diff, title, artist, pos, outfile, False)
+            except Exception as e1:
+                logging.error(f"Initial attempt failed: {e1}. Retrying with audio_track_only=True.")
+                try:
+                    job = create_track(music_file, stime, diff, title, artist, pos, outfile, True)
+                except Exception as e2:
+                    logging.error(f"Retry failed: {e2}.")
+                    # Handle the second failure (e.g., log it, alert, etc.)
+                    job = None  # or some other fallback mechanism
+            finally:
+                logging.debug("Track creation process completed.")
+
     if not sim_mode:
         cleanup(music_file, base_dir)
 
