@@ -34,10 +34,6 @@ def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
 # Set the global exception handler to our handler
 sys.excepthook = handle_uncaught_exception
 
-UNIGNORE_APE = False
-IGNORE_APE = True
-PERM_IGNORE_APE = False
-
 
 def detect_encoding(file_path):
     with open(file_path, 'rb') as f:
@@ -249,10 +245,6 @@ def get_map(audio_track_only):
 1. add analysis of streams in the file using 
     ffprobe -v error -show_streams inputfile or 
     ffprobe -v error -show_entries stream=index,codec_type -of default=noprint_wrappers=1 input.ape
-2. extract each stream with 
-     "-map", "0:a",
-      "-map", "0:1",
-
 """
 def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio_track_only):
     if flac_file.endswith('.flac'):
@@ -318,7 +310,6 @@ def run_service(cue_file, music_file, music_outdir_fpath, base_dir, ext, sim_mod
                     job = create_track(music_file, stime, diff, title, artist, pos, outfile, True)
                 except Exception as e2:
                     logging.error(f"Retry failed: {e2}.")
-                    # Handle the second failure (e.g., log it, alert, etc.)
                     job = None  # or some other fallback mechanism
             finally:
                 logging.debug("Track creation process completed.")
