@@ -60,7 +60,7 @@ def go(mp3_dir, flac_path, mp3_path, dest_dir):
 def walk(source_dir: str, dest_dir: str):
     for root, dirs, files in os.walk(source_dir):
         for file in files:
-            if file.lower().endswith('.flac'):
+            if file.lower().endswith('.flac') or file.lower().endswith('.m4a'):
                 logging.info(f"Converting {file}")
                 flac_path = os.path.join(root, file)
                 relative_path = os.path.relpath(root, source_dir)

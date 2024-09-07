@@ -8,7 +8,7 @@ from datetime import datetime
 
 import chardet
 
-from constants import SPLIT_DIR, FLAC_RENAME_STR, FILE_TYPES, ROOT_DIR
+from constants import SPLIT_DIR, FLAC_RENAME_STR, SPLIT_FILE_TYPES, ROOT_DIR
 
 # Configure logging to capture both stdout and stderr
 logging.basicConfig(
@@ -318,7 +318,7 @@ def run_service(cue_file, music_file, music_outdir_fpath, base_dir, ext, sim_mod
         cleanup(music_file, base_dir)
 
 def find_music_file(cue_file, music_indir_fpath):
-    for file_ext in FILE_TYPES:
+    for file_ext in SPLIT_FILE_TYPES:
         root, ext = os.path.splitext(cue_file)
 
         if root.endswith(file_ext):
