@@ -70,7 +70,7 @@ def get_track_length_2(duration_line):
 
 def extract_times(parts):
     h = int(parts[0])
-    min = int(parts[1]) + (h*60)
+    min = int(parts[1]) + (h * 60)
     sec = int(parts[2].split('.')[0])  # Extract seconds and remove milliseconds
     ms = int(parts[2].split('.')[1])  # Extract milliseconds
     formatted_duration = f"{min}:{sec}:{ms}".encode('utf-8')
@@ -126,30 +126,14 @@ def timedif(i1, i2):
     return b - a
 
 
-def convert_crlf_to_lf_utf8(input_file, output_file):
-    print(f"converting {input_file}")
-    # Open the input file in read mode with UTF-8 encoding and universal newlines
-    with open(input_file, 'r', encoding='utf-8', newline='') as infile:
-        # Read the file content
-        content = infile.read()
-
-    # Replace CRLF (\r\n) with LF (\n)
-    content = content.replace('\r', '')
-    from time import sleep
-    sleep(2)
-
-    # Write the modified content to the output file in write mode with UTF-8 encoding
-    with open(output_file, 'w', encoding='utf-8', newline='') as outfile:
-        outfile.write(content)
-
-
 def fix_cue_file(cuefile):
-    if not detect_encoding(cuefile):
-        # raise ValueError("------ CUE ERROR CUE ERROR -------- Unable to detect encoding with high confidence.")
-        print("------ CUE ERROR CUE ERROR -------- Unable to detect encoding with high confidence.")
-        convert_crlf_to_lf_utf8(cuefile, cuefile)
+    """
+    remove extra INDEX lines from cuefile
+    :param cuefile:
+    :return:
+    """
 
-    with open(cuefile, 'r+') as f:
+    with open(cuefile, 'r+', encoding='utf-8', newline='', errors='ignore') as f:
         lines = f.readlines()
     new_lines = []
     for line in lines:
@@ -236,16 +220,20 @@ def get_track_times(cue_data, flac_file, pos):
         'utf-8').strip()
     return stime, etime
 
+
 def get_map(audio_track_only):
     if audio_track_only:
         return "0:a"
     return "0"
+
 
 """
 1. add analysis of streams in the file using 
     ffprobe -v error -show_streams inputfile or 
     ffprobe -v error -show_entries stream=index,codec_type -of default=noprint_wrappers=1 input.ape
 """
+
+
 def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio_track_only):
     if flac_file.endswith('.flac'):
         cmd = [os.environ.get("FFMPEG"),
@@ -263,6 +251,35 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio
                flac_outfile]
 
     elif flac_file.endswith('.ape'):
+        cmd = [os.environ.get("FFMPEG"),
+               "-hide_banner",
+               "-ss", stime,
+               "-y",
+               "-i", flac_file,
+               "-t", diff,
+               "-map", get_map(audio_track_only),
+               "-max_muxing_queue_size", "9999",
+               "-c", "flac",
+               "-metadata", title,
+               "-metadata", artist,
+               "-metadata", f'track={pos}',
+               flac_outfile]
+
+    elif flac_file.endswith('.wv'):
+        cmd = [os.environ.get("FFMPEG"),
+               "-hide_banner",
+               "-ss", stime,
+               "-y",
+               "-i", flac_file,
+               "-t", diff,
+               "-map", get_map(audio_track_only),
+               "-max_muxing_queue_size", "9999",
+               "-c", "flac",
+               "-metadata", title,
+               "-metadata", artist,
+               "-metadata", f'track={pos}',
+               flac_outfile]
+    else:
         cmd = [os.environ.get("FFMPEG"),
                "-hide_banner",
                "-ss", stime,
@@ -316,6 +333,7 @@ def run_service(cue_file, music_file, music_outdir_fpath, base_dir, ext, sim_mod
 
     if not sim_mode:
         cleanup(music_file, base_dir)
+
 
 def find_music_file(cue_file, music_indir_fpath):
     for file_ext in SPLIT_FILE_TYPES:

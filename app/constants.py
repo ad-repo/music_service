@@ -20,7 +20,7 @@ DEV_BOX_FFPROBE = os.path.join(ROOT_DIR, "app", FFPROBE)
 DEV_BOX_FFMPEG = os.path.join(ROOT_DIR, "app", FFMPEG)
 DEV_BOX_SPLIT_DIR = "split_dir"
 
-SPLIT_FILE_TYPES = ['flac', 'ape']
+SPLIT_FILE_TYPES = ['flac', 'ape', 'wv']
 DOCKER_FLAC_VOLUME = "/flac_dir"
 DOCKER_MP3_VOLUME = "/mp3_dir"
 DOCKER_SPLIT_VOLUME = "/split_dir"
