@@ -58,7 +58,7 @@ def run_mp3_script():
         {
             'name': 'remove_subs',
             'in': 'query',
-            'type': 'boolean',
+            'type': 'string',
             'default': True,
             'required': True,
             'description': 'Whether to include metadata (checkbox)'
@@ -66,7 +66,7 @@ def run_mp3_script():
         {
             'name': 'only_english_subs',
             'in': 'query',
-            'type': 'boolean',
+            'type': 'string',
             'required': True,
             'default': True,
             'description': 'Whether to include metadata (checkbox)'
