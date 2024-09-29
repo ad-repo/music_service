@@ -18,3 +18,4 @@ services:
       - /volume1/flac_lib:/flac_dir
       - /volume1/flac_lib_mp3:/mp3_dir
       - /volume1/dockerdata/music_service/db:/db
+      - /volume1/video:/video
