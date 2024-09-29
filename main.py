@@ -59,7 +59,7 @@ def run_mp3_script():
             'name': 'remove_subs',
             'in': 'query',
             'type': 'string',
-            'default': True,
+            'default': 'true',
             'required': True,
             'description': 'Whether to include metadata (checkbox)'
         },
@@ -68,7 +68,7 @@ def run_mp3_script():
             'in': 'query',
             'type': 'string',
             'required': True,
-            'default': True,
+            'default': 'true',
             'description': 'Whether to include metadata (checkbox)'
         }
 
