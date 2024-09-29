@@ -52,7 +52,8 @@ def swap(in_video_file, out_video_file):
 
 
 def main(video_file, remove_subs, english_only_subs):
-    outfile = os.path.join(os.path.dirname(video_file), f'temp_{os.path.basename(video_file)}')
+    os.chdir('/volume1/video')
+    outfile = f'temp_{os.path.basename(video_file)}'
     data =  get_multimedia_data(video_file,)
     std_out, error_out = modify_track(video_file, outfile, process_streams(data, remove_subs, english_only_subs))
     swap(video_file, outfile)
