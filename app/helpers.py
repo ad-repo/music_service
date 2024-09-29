@@ -60,7 +60,7 @@ def process_stream(line: str, remove_subtitles, english_subs_only):
 def build_map_args(stream_list: list):
     map_arg = '-map'
     map_args = []
-    stream_list.append('0')
+    stream_list.append('0') if '0' not in stream_list else None
     for stream_num in stream_list:
         map_args.append(map_arg)
         map_args.append(f'0:{stream_num}')
