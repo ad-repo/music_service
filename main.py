@@ -53,7 +53,7 @@ def run_mp3_script():
             'in': 'query',
             'type': 'string',
             'required': True,
-            'description': 'The input string for processing'
+            'description': ''
         },
         {
             'name': 'remove_subs',
@@ -61,7 +61,7 @@ def run_mp3_script():
             'type': 'string',
             'default': 'true',
             'required': True,
-            'description': 'Whether to include metadata (checkbox)'
+            'description': ''
         },
         {
             'name': 'only_english_subs',
@@ -69,7 +69,7 @@ def run_mp3_script():
             'type': 'string',
             'required': True,
             'default': 'true',
-            'description': 'Whether to include metadata (checkbox)'
+            'description': ''
         }
 
     ],
@@ -93,8 +93,8 @@ def run_video_metadata_to_location():
     input_string = request.args.get('input_string')
 
     # Get the 'include_metadata' boolean parameter (default to False if not provided)
-    remove_subs = request.args.get('remove_subs', 'true').lower() in ['true', '1', 'yes']
-    only_english_subs = request.args.get('only_english_subs', 'true').lower() in ['true', '1', 'yes']
+    remove_subs = request.args.get('remove_subs', 'true')
+    only_english_subs = request.args.get('only_english_subs', 'true')
 
     if not input_string:
         return "Missing 'input_string' parameter.", 400
