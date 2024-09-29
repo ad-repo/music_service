@@ -81,4 +81,4 @@ if __name__ == "__main__":
     print(f"remove_subs: {remove_subs}")
     print(f"only_english_subs: {only_english_subs}")
 
-    main(args.input_string, remove_subs, only_english_subs)
+    main(args.video_filename, remove_subs, only_english_subs)

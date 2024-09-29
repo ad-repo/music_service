@@ -90,18 +90,18 @@ def run_mp3_script():
 })
 def set_video_lang():
     # Get the 'input_string' query parameter
-    input_string = request.args.get('video_filename')
+    video_filename = request.args.get('video_filename')
 
     # Get the 'include_metadata' boolean parameter (default to False if not provided)
     remove_subs = request.args.get('remove_subs', 'true')
     only_english_subs = request.args.get('only_english_subs', 'true')
 
-    if not input_string:
+    if video_filename is None or not video_filename:
         return "Missing 'input_string' parameter.", 400
 
     try:
         # Prepare the command for subprocess with optional include_metadata flag
-        command = ['python', '-u', 'app/set_video_lang.py', input_string, remove_subs, only_english_subs]
+        command = ['python', '-u', 'app/set_video_lang.py', video_filename, remove_subs, only_english_subs]
 
         # Run the script with the input string and optional flag
         result = subprocess.run(command, capture_output=True, text=True)
