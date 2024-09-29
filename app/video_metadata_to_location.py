@@ -3,6 +3,7 @@ import subprocess
 import constants
 import shutil
 import sys
+import argparse
 
 from helpers import get_multimedia_data, process_streams, build_command
 
@@ -60,8 +61,24 @@ def main(video_file, remove_subs, english_only_subs):
 
 
 if __name__ == "__main__":
-    remove_subs = sys.argv[1]
-    english_only_subs = sys.argv[2]
-    video_file = sys.argv[0]
-    # video_file = "/Users/ad/Projects/music_service/test_data/Monsters.The.Lyle.and.Erik.Menendez.Story.S01E02.1080p.NF.WEB-DL.H.264-EniaHD copy.mkv"
-    main(video_file, remove_subs, english_only_subs)
+    # remove_subs = sys.argv[1]
+    # english_only_subs = sys.argv[2]
+    # video_file = sys.argv[0]
+    # # video_file = "/Users/ad/Projects/music_service/test_data/Monsters.The.Lyle.and.Erik.Menendez.Story.S01E02.1080p.NF.WEB-DL.H.264-EniaHD copy.mkv"
+    # main(video_file, remove_subs, english_only_subs)
+    parser = argparse.ArgumentParser(description="Process video metadata and optionally handle subtitles.")
+
+    # Define expected arguments
+    parser.add_argument('input_string', type=str, help="Input string for video metadata processing.")
+    parser.add_argument('remove_subs', type=str, help="Remove subtitles (yes/no).")
+    parser.add_argument('only_english_subs', type=str, help="Keep only English subtitles (yes/no).")
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Convert the string 'yes'/'no' to boolean values
+    remove_subs = args.remove_subs.lower() == 'yes'
+    only_english_subs = args.only_english_subs.lower() == 'yes'
+
+    # Call the processing function with the parsed arguments
+    main(args.input_string, remove_subs, only_english_subs)
