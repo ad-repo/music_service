@@ -25,6 +25,7 @@ DOCKER_FLAC_VOLUME = "/flac_dir"
 DOCKER_MP3_VOLUME = "/mp3_dir"
 DOCKER_SPLIT_VOLUME = "/split_dir"
 FLAC_RENAME_STR = "extracted"
+VIDEO_DIR = "/video"
 
 # my local development with no docker and no ffmpeg/ffprobe in PATH
 if ME == DEV_BOX:

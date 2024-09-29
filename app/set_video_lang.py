@@ -1,17 +1,18 @@
-import os
-import subprocess
-import constants
-import shutil
-import sys
 import argparse
+import os
+import shutil
+import subprocess
 
+from constants import VIDEO_DIR
 from helpers import get_multimedia_data, process_streams, build_command
 
 
-def modify_track(video_file: str, outfile, stream_list: list):
+def modify_track(video_file: str, stream_list: list):
+    outfile = f'temp_{os.path.basename(video_file)}'
     command = build_command(video_file, outfile, stream_list)
     print(f'--- >>> {command}')
     std_out, error_out = run_ffmpeg_command(command)
+    swap(video_file, outfile)
     return std_out, error_out
 
 
@@ -46,17 +47,18 @@ def run_ffmpeg_command(command):
         print("Error:", e.stderr)
         return None, None
 
+
 def swap(in_video_file, out_video_file):
     os.remove(in_video_file)
     shutil.move(out_video_file, in_video_file)
 
 
 def main(video_file, remove_subs, english_only_subs):
-    os.chdir('/video')
-    outfile = f'temp_{os.path.basename(video_file)}'
-    data =  get_multimedia_data(video_file,)
-    std_out, error_out = modify_track(video_file, outfile, process_streams(data, remove_subs, english_only_subs))
-    swap(video_file, outfile)
+    # make VIDEO_DIR the working directory
+    os.chdir(VIDEO_DIR)
+    data = get_multimedia_data(video_file)
+    std_out, error_out = modify_track(video_file, process_streams(data, remove_subs, english_only_subs))
+
     print(std_out)
     print(error_out)
 
@@ -67,19 +69,16 @@ if __name__ == "__main__":
     # video_file = sys.argv[0]
     # # video_file = "/Users/ad/Projects/music_service/test_data/Monsters.The.Lyle.and.Erik.Menendez.Story.S01E02.1080p.NF.WEB-DL.H.264-EniaHD copy.mkv"
     # main(video_file, remove_subs, english_only_subs)
-    parser = argparse.ArgumentParser(description="Process video metadata and optionally handle subtitles.")
-
-    # Define expected arguments
-    parser.add_argument('input_string', type=str, help="Input string for video metadata processing.")
-    parser.add_argument('remove_subs', type=str, help="Remove subtitles (yes/no).")
-    parser.add_argument('only_english_subs', type=str, help="Keep only English subtitles (yes/no).")
-
-    # Parse the arguments
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument('video_filename', type=str, help="")
+    parser.add_argument('remove_subs', type=str, help="", default='true')
+    parser.add_argument('only_english_subs', type=str, help="", default='true')
     args = parser.parse_args()
 
-    # Convert the string 'yes'/'no' to boolean values
-    remove_subs = args.remove_subs.lower() == 'yes'
-    only_english_subs = args.only_english_subs.lower() == 'yes'
+    remove_subs = args.remove_subs.lower() == 'true'
+    only_english_subs = args.only_english_subs.lower() == 'true'
 
-    # Call the processing function with the parsed arguments
+    print(f"remove_subs: {remove_subs}")
+    print(f"only_english_subs: {only_english_subs}")
+
     main(args.input_string, remove_subs, only_english_subs)

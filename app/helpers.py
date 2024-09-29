@@ -52,12 +52,12 @@ def process_stream(line: str, remove_subtitles, english_subs_only):
                     print(line)
                     return match(line)
 
-
     if 'Audio' in line and eng in line:
         print(line)
         return match(line)
 
-def build_map_args(stream_list:list):
+
+def build_map_args(stream_list: list):
     map_arg = '-map'
     map_args = []
     stream_list.append('0')
@@ -69,7 +69,7 @@ def build_map_args(stream_list:list):
 
 def build_command(in_video_file: str, out_video_file, stream_list: list):
     command = [os.environ.get('FFMPEG'), '-i', in_video_file]
-    command +=  build_map_args(stream_list)
+    command += build_map_args(stream_list)
     command += ['-y', '-c', 'copy', out_video_file]
     print(command)
     return command
@@ -88,5 +88,4 @@ def process_streams(video_data: list, remove_subtitles=True, english_subs_only=T
         if 'Stream #' in line:
             stream_num = process_stream(line, remove_subtitles, english_subs_only)
             streams_numbers.append(stream_num) if stream_num is not None else None
-    # print(streams_numbers)
     return streams_numbers

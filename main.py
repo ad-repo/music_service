@@ -45,11 +45,11 @@ def run_mp3_script():
         return str(e), 500
 
 
-@main.route('/video_metadata_to_location', methods=['GET'])
+@main.route('/set_video_lang', methods=['GET'])
 @swag_from({
     'parameters': [
         {
-            'name': 'input_string',
+            'name': 'video_filename',
             'in': 'query',
             'type': 'string',
             'required': True,
@@ -59,8 +59,8 @@ def run_mp3_script():
             'name': 'remove_subs',
             'in': 'query',
             'type': 'string',
-            'default': 'true',
             'required': True,
+            'default': 'true',
             'description': ''
         },
         {
@@ -88,9 +88,9 @@ def run_mp3_script():
         }
     }
 })
-def run_video_metadata_to_location():
+def set_video_lang():
     # Get the 'input_string' query parameter
-    input_string = request.args.get('input_string')
+    input_string = request.args.get('video_filename')
 
     # Get the 'include_metadata' boolean parameter (default to False if not provided)
     remove_subs = request.args.get('remove_subs', 'true')
@@ -101,7 +101,7 @@ def run_video_metadata_to_location():
 
     try:
         # Prepare the command for subprocess with optional include_metadata flag
-        command = ['python', '-u', 'app/video_metadata_to_location.py', input_string, remove_subs, only_english_subs]
+        command = ['python', '-u', 'app/set_video_lang.py', input_string, remove_subs, only_english_subs]
 
         # Run the script with the input string and optional flag
         result = subprocess.run(command, capture_output=True, text=True)
