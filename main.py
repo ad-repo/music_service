@@ -51,7 +51,7 @@ def run_split_script():
         }
     }
 })
-def run_split_script():
+def run_split_this_script():
     _cue_dir = request.args.get('cue_dir')
     _cue_file = request.args.get('cue_file')
 
