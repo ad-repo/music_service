@@ -396,4 +396,4 @@ if __name__ == '__main__':
         print(f'Found cue file: {args.cue_file}')
         print(f'Found cue dir: {args.cue_dir}')
         print(os.path.join(args.cue_dir, args.cue_file), os.path.exists(os.path.join(args.cue_dir, args.cue_file)))
-        find_music_folders(os.path.join(args.cue_dir, args.cue_file))
+        find_music_folders(args.cue_dir)
