@@ -387,13 +387,20 @@ def find_music_folders(base_dir, sim_mode=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="")
     parser.add_argument('cue_dir', type=str, help="", default=None)
-    parser.add_argument('cue_file', type=str, help="", default=None)
     args = parser.parse_args()
     if args.cue_file is None:
         find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
     else:
-        SPLIT_DIR = args.cue_dir
-        print(f'Found cue file: {args.cue_file}')
-        print(f'Found cue dir: {args.cue_dir}')
-        print(os.path.join(args.cue_dir, args.cue_file), os.path.exists(os.path.join(args.cue_dir, args.cue_file)))
+        plex_lib_dir_name = 'AD-FLAC'
+        docker_lib_name = 'flac_dir'
+
+        cue_dir = args.cue_dir.replace(plex_lib_dir_name, docker_lib_name) if plex_lib_dir_name in args.cue_dir \
+            else args.cue_dir
+
+        print(f'Found cue dir: {args.cue_dir} : {cue_dir}')
+        print(args.cue_dir, os.path.exists(cue_dir))
+
+        # set new not defualt base dir to search
+        SPLIT_DIR = cue_dir
+
         find_music_folders(args.cue_dir)

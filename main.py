@@ -1,7 +1,7 @@
-from flask import Blueprint, request
 import subprocess
-import os
+
 from flasgger import swag_from
+from flask import Blueprint, request
 
 main = Blueprint('main', __name__)
 
@@ -24,18 +24,12 @@ def run_split_script():
     except Exception as e:
         return str(e), 500
 
+
 @main.route('/split_this_image', methods=['GET'])
 @swag_from({
     'parameters': [
         {
             'name': 'cue_dir',
-            'in': 'query',
-            'type': 'string',
-            'required': True,
-            'description': ''
-        },
-        {
-            'name': 'cue_file',
             'in': 'query',
             'type': 'string',
             'required': True,
@@ -52,12 +46,10 @@ def run_split_script():
     }
 })
 def run_split_this_script():
-    _cue_dir = request.args.get('cue_dir')
-    _cue_file = request.args.get('cue_file')
+    cue_dir = request.args.get('cue_dir')
 
     try:
-        result = subprocess.run(['python', "-u", 'app/split_image.py', _cue_dir, _cue_file],
-                                capture_output=True, text=True)
+        result = subprocess.run(['python', "-u", 'app/split_image.py', cue_dir], capture_output=True, text=True)
         return f"Script output:\n{result.stdout}\n\n{result.stderr}"
     except Exception as e:
         return str(e), 500
