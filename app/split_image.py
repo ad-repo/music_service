@@ -385,8 +385,8 @@ def find_music_folders(base_dir, sim_mode=False):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="")
-    parser.add_argument('cue_dir', type=str, help="", default=None)
+    parser = argparse.ArgumentParser(description="Optional cue_dir argument example")
+    parser.add_argument('--cue_dir', type=str, help="Optional cue directory", default=None)
     args = parser.parse_args()
     if args.cue_dir is None:
         find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
