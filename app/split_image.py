@@ -386,9 +386,9 @@ def find_music_folders(base_dir, sim_mode=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument('cue_dir', type=str, help="", default=None)
+    parser.add_argument('cue_dir', type=str, help="", default=None, required=False)
     args = parser.parse_args()
-    if args.cue_file is None:
+    if args.cue_dir is None:
         find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
     else:
         plex_lib_dir_name = 'AD-FLAC'
