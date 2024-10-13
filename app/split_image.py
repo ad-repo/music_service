@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 import uuid
+import argparse
 from datetime import datetime
 
 import chardet
@@ -384,4 +385,22 @@ def find_music_folders(base_dir, sim_mode=False):
 
 
 if __name__ == '__main__':
-    find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
+    parser = argparse.ArgumentParser(description="Optional cue_dir argument example")
+    parser.add_argument('--cue_dir', type=str, help="Optional cue directory", default=None)
+    args = parser.parse_args()
+    if args.cue_dir is None:
+        find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
+    else:
+        plex_lib_dir_name = 'AD-FLAC'
+        docker_lib_name = 'flac_dir'
+
+        cue_dir = args.cue_dir.replace(plex_lib_dir_name, docker_lib_name) if plex_lib_dir_name in args.cue_dir \
+            else args.cue_dir
+
+        print(f'Found cue dir: {args.cue_dir} : {cue_dir}')
+        print(args.cue_dir, os.path.exists(cue_dir))
+
+        # set new not defualt base dir to search
+        SPLIT_DIR = cue_dir
+
+        find_music_folders(args.cue_dir)
