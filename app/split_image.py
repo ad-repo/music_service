@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 import uuid
+import argparse
 from datetime import datetime
 
 import chardet
@@ -384,4 +385,12 @@ def find_music_folders(base_dir, sim_mode=False):
 
 
 if __name__ == '__main__':
-    find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument('cue_dir', type=str, help="", default=None)
+    parser.add_argument('cue_file', type=str, help="", default=None)
+    args = parser.parse_args()
+    if args.cue_file is None:
+        find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
+    else:
+        SPLIT_DIR = args.cue_dir
+        find_music_folders(os.path.join(args.cue_dir, args.cue_file))
