@@ -56,7 +56,7 @@ def run_split_this_script():
     _cue_file = request.args.get('cue_file')
 
     try:
-        result = subprocess.run(['python', "-u", 'app/split_image.py', os.path.join(_cue_dir, _cue_file)],
+        result = subprocess.run(['python', "-u", 'app/split_image.py', _cue_dir, _cue_file],
                                 capture_output=True, text=True)
         return f"Script output:\n{result.stdout}\n\n{result.stderr}"
     except Exception as e:
