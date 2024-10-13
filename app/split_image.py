@@ -393,4 +393,6 @@ if __name__ == '__main__':
         find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
     else:
         SPLIT_DIR = args.cue_dir
+        print(f'Found cue file: {args.cue_file}')
+        print(f'Found cue dir: {args.cue_dir}')
         find_music_folders(os.path.join(args.cue_dir, args.cue_file))
