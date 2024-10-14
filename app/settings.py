@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     # database docker volume
     DB_VOLUME: str
 
+    # docker video volume
+    VIDEO_VOLUME: str
+
     # full path of the database file
     DATABASE_FILE: str
 
