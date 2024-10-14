@@ -50,10 +50,12 @@ class Settings(BaseSettings):
 
     class Config:
         if os.environ.get('LOCAL') == 'true':
-            env_file = '.env-local'
+            env_file = '../.env-local'
         else:
-            env_file = os.path.join(ROOT_DIR, 'app', '.env-docker')
+            # env_file = os.path.join(ROOT_DIR, 'app', '../.env-docker')
+            env_file = '../.env-docker'
         print(env_file, os.path.exists(env_file))
+
     @validator('DATABASE_FILE', pre=True, always=True)
     def set_database_full_path(cls, value, values):
         if os.environ.get('LOCAL') == 'true':
