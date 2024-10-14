@@ -211,7 +211,7 @@ def rename_flac(flac_file, base_dir):
 
 def cleanup(flac_file, base_dir):
     print(flac_file, base_dir)
-    # rename_flac(flac_file, base_dir)
+    rename_flac(flac_file, base_dir)
 
 
 def get_track_times(cue_data, flac_file, pos):
