@@ -420,4 +420,4 @@ if __name__ == '__main__':
         # set new not defualt base dir to search
         SPLIT_DIR = cue_dir
 
-        find_music_folders(args.cue_dir)
+        find_music_folders(cue_dir)
