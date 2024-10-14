@@ -15,8 +15,8 @@ services:
     env_file:
       - .env-docker
     volumes:
-      - ${SPLIT_SEARCH_DIR}:${SPLIT_VOLUME}
-      - ${LOSSLESS_IN_DIR}:/${FLAC_VOLUME}
-      - ${MP3_OUT_DIR}:${MP3_VOLUME}
-      - ${DB_DIR}:${DB_VOLUME}
-      - ${VIDEO_DIR}:${VIDEO_VOLUME}
+      - "${SPLIT_SEARCH_DIR}:${SPLIT_VOLUME}"
+      - "${LOSSLESS_IN_DIR}:${FLAC_VOLUME}"
+      - "${MP3_OUT_DIR}:${MP3_VOLUME}"
+      - "${DB_DIR}:${DB_VOLUME}"
+      - "${VIDEO_DIR}:${VIDEO_VOLUME}"
