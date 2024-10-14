@@ -406,7 +406,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.cue_dir is None:
-        find_music_folders(env_settings.SPLIT_SEARCH_DIR)
+        find_music_folders(env_settings.SPLIT_VOLUME)
     else:
         plex_lib_dir_name = 'AD-FLAC'
         docker_lib_name = 'flac_dir'
