@@ -2,7 +2,7 @@ import os
 
 from pydantic_settings import BaseSettings
 from pydantic import validator
-from constants import DB_FILENAME, ROOT_DIR
+from constants import DB_FILENAME
 
 
 class Settings(BaseSettings):
@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     DATABASE_FILE: str
 
     class Config:
+        """
+        load configuration from env file
+        """
         if os.environ.get('LOCAL') == 'true':
             env_file = '../.env-local'
         else:
