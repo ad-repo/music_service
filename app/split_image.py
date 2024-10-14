@@ -1,26 +1,20 @@
+import argparse
 import logging
 import os
 import shutil
 import subprocess
 import sys
 import uuid
-import argparse
 from datetime import datetime
 
+from constants import SPLIT_FILE_TYPES, FLAC_RENAME_STR, PLEX_LOSSLESS_LIB
 from settings import Settings
-from constants import SPLIT_FILE_TYPES, FLAC_RENAME_STR
 
 env_settings = Settings()
 for setting in env_settings:
     print(setting)
 
-# exit()
-#
-# print(f"Database Filename: {settings.DATABASE_FILE}")
-
 import chardet
-
-# from constants import ROOT_DIR
 
 # Configure logging to capture both stdout and stderr
 logging.basicConfig(
@@ -247,7 +241,6 @@ def get_map(audio_track_only):
 
 
 def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio_track_only):
-
     if flac_file.endswith('.flac'):
         cmd = [env_settings.FFMPEG,
                "-hide_banner",
@@ -408,16 +401,10 @@ if __name__ == '__main__':
     if args.cue_dir is None:
         find_music_folders(env_settings.SPLIT_VOLUME)
     else:
-        plex_lib_dir_name = 'AD-FLAC'
-        docker_lib_name = 'flac_dir'
-
-        cue_dir = args.cue_dir.replace(plex_lib_dir_name, docker_lib_name) if plex_lib_dir_name in args.cue_dir \
-            else args.cue_dir
+        cue_dir = args.cue_dir.replace(PLEX_LOSSLESS_LIB, env_settings.FLAC_VOLUME) if (PLEX_LOSSLESS_LIB in
+                                                                                        args.cue_dir) else args.cue_dir
 
         print(f'Found cue dir: {args.cue_dir} : {cue_dir}')
-        print(args.cue_dir, os.path.exists(cue_dir))
-
-        # set new not defualt base dir to search
-        SPLIT_DIR = cue_dir
+        print(cue_dir, os.path.exists(cue_dir))
 
         find_music_folders(cue_dir)

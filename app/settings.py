@@ -56,4 +56,7 @@ class Settings(BaseSettings):
         print(env_file, os.path.exists(env_file))
     @validator('DATABASE_FILE', pre=True, always=True)
     def set_database_full_path(cls, value, values):
-        return f"{values.get('DB_DIR')}/{DB_FILENAME}"
+        if os.environ.get('LOCAL') == 'true':
+            return f"{values.get('DB_DIR')}/{DB_FILENAME}"
+        else:
+            return f"{values.get('DB_VOLUME')}/{DB_FILENAME}"
