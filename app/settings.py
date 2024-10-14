@@ -1,34 +1,56 @@
+import os
+
 from pydantic_settings import BaseSettings
-from pydantic import BaseModel, validator
+from pydantic import validator
+from constants import DB_FILENAME
 
 
 class Settings(BaseSettings):
-    SPLIT_FILE_TYPES: str
-    CUE_SPLIT_OUT_DIR: str
+    # Base folder for  recursive cuefile search
+    SPLIT_SEARCH_DIR: str
+
+    # location of the tracking database
     DB_DIR: str
+
+    # source lossless folder
     LOSSLESS_IN_DIR: str
+
+    # folder where converted mp3's end up
     MP3_OUT_DIR: str
-    DEV_BOXES: str
+
+    # source video folder
+    VIDEO_DIR: str
+
+    # network names of the local development machine running this package
+    LOCAL_NAMES: str
+
+    # ffmpeg command
     FFMPEG: str
+
+    # ffprobe command
     FFPROBE: str
 
-    ROOT_DIR: str
-
-    SPLIT_FILE_TYPES: str
+    # lossless docker volume
     FLAC_VOLUME: str
-    MP3_VOLUME: str
-    SPLIT_VOLUME: str
-    DB_VOLUME: str
-    FLAC_RENAME_STR: str
 
-    DB_FILENAME: str
+    # mp3 docker output volume
+    MP3_VOLUME: str
+
+    # default location to search for image/cue files to split
+    SPLIT_VOLUME: str
+
+    # database docker volume
+    DB_VOLUME: str
+
+    # full path of the database file
     DATABASE_FILE: str
 
     class Config:
-        env_file = '/Users/ad/Projects/music_service/.env-docker'
+        if os.environ.get('LOCAL') == 'true':
+            env_file = '/Users/ad/Projects/music_service/.env-local'
+        else:
+            env_file = '/Users/ad/Projects/music_service/.env-docker'
 
     @validator('DATABASE_FILE', pre=True, always=True)
-    def set_DATABASE_FILE(cls, value, values):
-        # Access the original value from 'foo'
-        DB_FILENAME = values.get('DB_FILENAME', '')
-        return f"/db/{DB_FILENAME}"
+    def set_database_full_path(cls, value, values):
+        return f"{values.get('DB_DIR')}/{DB_FILENAME}"

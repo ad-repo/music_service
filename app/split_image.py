@@ -7,9 +7,20 @@ import uuid
 import argparse
 from datetime import datetime
 
+from settings import Settings
+from constants import SPLIT_FILE_TYPES, FLAC_RENAME_STR
+
+env_settings = Settings()
+for setting in env_settings:
+    print(setting)
+
+# exit()
+#
+# print(f"Database Filename: {settings.DATABASE_FILE}")
+
 import chardet
 
-from constants import SPLIT_DIR, FLAC_RENAME_STR, SPLIT_FILE_TYPES, ROOT_DIR
+# from constants import ROOT_DIR
 
 # Configure logging to capture both stdout and stderr
 logging.basicConfig(
@@ -82,7 +93,7 @@ def extract_times(parts):
 def get_track_length(file_path):
     formatted_duration = None
     result = subprocess.run(
-        [os.environ.get("FFMPEG"), '-i', file_path],
+        [env_settings.FFMPEG, '-i', file_path],
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
         text=True
@@ -206,7 +217,7 @@ def rename_flac(flac_file, base_dir):
 
 def cleanup(flac_file, base_dir):
     print(flac_file, base_dir)
-    rename_flac(flac_file, base_dir)
+    # rename_flac(flac_file, base_dir)
 
 
 def get_track_times(cue_data, flac_file, pos):
@@ -236,8 +247,9 @@ def get_map(audio_track_only):
 
 
 def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio_track_only):
+
     if flac_file.endswith('.flac'):
-        cmd = [os.environ.get("FFMPEG"),
+        cmd = [env_settings.FFMPEG,
                "-hide_banner",
                "-ss", stime,
                "-y",
@@ -252,7 +264,7 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio
                flac_outfile]
 
     elif flac_file.endswith('.ape'):
-        cmd = [os.environ.get("FFMPEG"),
+        cmd = [env_settings.FFMPEG,
                "-hide_banner",
                "-ss", stime,
                "-y",
@@ -267,7 +279,7 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio
                flac_outfile]
 
     elif flac_file.endswith('.wv'):
-        cmd = [os.environ.get("FFMPEG"),
+        cmd = [env_settings.FFMPEG,
                "-hide_banner",
                "-ss", stime,
                "-y",
@@ -281,7 +293,7 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio
                "-metadata", f'track={pos}',
                flac_outfile]
     else:
-        cmd = [os.environ.get("FFMPEG"),
+        cmd = [env_settings.FFMPEG,
                "-hide_banner",
                "-ss", stime,
                "-y",
@@ -294,6 +306,9 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio
                "-metadata", artist,
                "-metadata", f'track={pos}',
                flac_outfile]
+
+    # print(cmd)
+    # print(os.path.abspath(os.curdir));exit()
 
     job = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     logging.debug(f'FFmpeg job output: {job}')
@@ -377,6 +392,7 @@ def parse_folder(cue_file, base_dir, sim_mode):
 
 
 def find_music_folders(base_dir, sim_mode=False):
+    print(base_dir)
     for root, dirs, files in os.walk(base_dir):
         for file in files:
             if file.endswith(".cue"):
@@ -388,8 +404,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Optional cue_dir argument example")
     parser.add_argument('--cue_dir', type=str, help="Optional cue directory", default=None)
     args = parser.parse_args()
+
     if args.cue_dir is None:
-        find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
+        find_music_folders(env_settings.SPLIT_SEARCH_DIR)
     else:
         plex_lib_dir_name = 'AD-FLAC'
         docker_lib_name = 'flac_dir'

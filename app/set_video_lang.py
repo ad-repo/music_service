@@ -4,8 +4,15 @@ import re
 import shutil
 import subprocess
 
-from constants import ENGLISH
+
 from helpers import get_multimedia_data
+
+from settings import Settings
+from constants import ENGLISH
+
+env_settings = Settings()
+for setting in env_settings:
+    print(setting)
 
 
 def match(line: str) -> str or None:
@@ -58,7 +65,7 @@ def build_map_args(stream_list: list) -> list[str]:
 
 
 def build_command(in_video_file: str, out_video_file, stream_list: list) -> list[str]:
-    command = [os.environ.get('FFMPEG'), '-i', in_video_file]
+    command = [env_settings.FFMPEG, '-i', in_video_file]
     command += build_map_args(stream_list)
     command += ['-y', '-c', 'copy', out_video_file]
     return command
@@ -111,30 +118,26 @@ def swap(in_video_file, out_video_file):
 
 def main(video_file, remove_subs, english_only_subs):
     # make VIDEO_DIR the working directory
-    os.chdir(os.environ.get("VIDEO_DIR"))
+    os.chdir(env_settings.VIDEO_DIR)
     data = get_multimedia_data(video_file)
     std_out, error_out = modify_track(video_file, process_streams(data, remove_subs, english_only_subs))
 
 
 if __name__ == "__main__":
+    if os.environ.get('LOCAL'):
+        video_file = "/Users/ad/Projects/music_service/test_data/Monsters.The.Lyle.and.Erik.Menendez.Story.S01E02.1080p.NF.WEB-DL.H.264-EniaHD copy.mkv"
+        main(video_file, True, True)
+    else:
+        parser = argparse.ArgumentParser(description="")
+        parser.add_argument('video_filename', type=str, help="")
+        parser.add_argument('remove_subs', type=str, help="", default='true')
+        parser.add_argument('only_english_subs', type=str, help="", default='true')
+        args = parser.parse_args()
 
-    parser = argparse.ArgumentParser(description="")
-    parser.add_argument('video_filename', type=str, help="")
-    parser.add_argument('remove_subs', type=str, help="", default='true')
-    parser.add_argument('only_english_subs', type=str, help="", default='true')
-    args = parser.parse_args()
+        remove_subs = args.remove_subs.lower() == 'true'
+        only_english_subs = args.only_english_subs.lower() == 'true'
 
-    remove_subs = args.remove_subs.lower() == 'true'
-    only_english_subs = args.only_english_subs.lower() == 'true'
+        print(f"remove_subs: {remove_subs}")
+        print(f"only_english_subs: {only_english_subs}")
 
-    print(f"remove_subs: {remove_subs}")
-    print(f"only_english_subs: {only_english_subs}")
-
-    main(args.video_filename, remove_subs, only_english_subs)
-
-
-    # remove_subs = sys.argv[1]
-    # english_only_subs = sys.argv[2]
-    # video_file = sys.argv[0]
-    # # video_file = "/Users/ad/Projects/music_service/test_data/Monsters.The.Lyle.and.Erik.Menendez.Story.S01E02.1080p.NF.WEB-DL.H.264-EniaHD copy.mkv"
-    # main(video_file, remove_subs, english_only_subs)
+        main(args.video_filename, remove_subs, only_english_subs)
