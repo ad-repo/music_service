@@ -1,6 +1,11 @@
 import subprocess
 import os
 
+from settings import Settings
+
+env_settings = Settings()
+for setting in env_settings:
+    print(setting)
 
 class CaseInsensitiveDict(dict):
     def __getitem__(self, key) -> str:
@@ -15,8 +20,9 @@ class NoMetadataException(Exception):
 
 
 def get_multimedia_data(video_file: str) -> list[str]:
+    print(os.path.abspath(os.getcwd()))
     command = [
-        os.environ.get("FFMPEG"), '-i', video_file
+        env_settings.FFMPEG, '-i', video_file
     ]
     result = subprocess.run(command,
                             stderr=subprocess.PIPE,

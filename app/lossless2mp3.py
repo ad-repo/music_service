@@ -1,12 +1,20 @@
 import logging
 import os
 import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor
 
-from constants import DOCKER_MP3_VOLUME, DOCKER_FLAC_VOLUME, ROOT_DIR
 from db import Track
 from db import create_db
 
-import sys
+from settings import Settings
+from constants import ROOT_DIR
+
+env_settings = Settings()
+for setting in env_settings:
+    print(setting)
+
+
 
 # Configure logging to capture both stdout and stderr
 logging.basicConfig(
@@ -32,7 +40,7 @@ sys.excepthook = handle_uncaught_exception
 
 def _convert(flac_path, mp3_path):
     command = [
-        os.environ.get("FFMPEG"), '-i', flac_path, '-ab', '320k', '-map_metadata', '0', '-id3v2_version', '3', mp3_path
+        env_settings.FFMPEG, '-i', flac_path, '-ab', '320k', '-map_metadata', '0', '-id3v2_version', '3', mp3_path
     ]
     subprocess.run(command, check=True)
 
@@ -57,30 +65,35 @@ def go(mp3_dir, flac_path, mp3_path, dest_dir):
     except ValueError as e:
         return
 
-def walk(source_dir: str, dest_dir: str):
-    for root, dirs, files in os.walk(source_dir):
-        for file in files:
-            if file.lower().endswith('.flac') or file.lower().endswith('.m4a'):
-                logging.info(f"Converting {file}")
-                flac_path = os.path.join(root, file)
-                relative_path = os.path.relpath(root, source_dir)
-                mp3_dir = os.path.join(dest_dir, relative_path)
-                mp3_path = os.path.join(mp3_dir, os.path.splitext(file)[0] + '.mp3')
-                go(mp3_dir, flac_path, mp3_path, dest_dir)
+def process_file(file: str, root: str, source_dir: str, dest_dir: str):
+    if file.lower().endswith('.flac') or file.lower().endswith('.m4a'):
+        logging.info(f"Converting {file}")
+        flac_path = os.path.join(root, file)
+        relative_path = os.path.relpath(root, source_dir)
+        mp3_dir = os.path.join(dest_dir, relative_path)
+        mp3_path = os.path.join(mp3_dir, os.path.splitext(file)[0] + '.mp3')
+        go(mp3_dir, flac_path, mp3_path, dest_dir)  # Assuming 'go' handles conversion
+
+# The walk function with multithreading
+def walk(source_dir: str, dest_dir: str, max_workers=4):
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for root, dirs, files in os.walk(source_dir):
+            # Submit tasks to the thread pool for each file
+            for file in files:
+                executor.submit(process_file, file, root, source_dir, dest_dir)
 
 
-def convert_flac_to_mp3(source_dir: str, dest_dir: str):
-    logging.info(f"using db {os.environ.get('DATABASE_FILE')}")
+def convert_lossless_to_mp3(source_dir: str, dest_dir: str):
+    logging.info(f"using db {env_settings.DATABASE_FILE}")
     create_db()
     logging.info(f"Converting flac to mp3 - SRC {source_dir} DEST {dest_dir}")
     walk(source_dir, dest_dir)
 
 
 if __name__ == '__main__':
-    if os.environ.get('ENV') == "":
-        # docker running on the nas with ffmpeg globally installed
-        convert_flac_to_mp3(DOCKER_FLAC_VOLUME, DOCKER_MP3_VOLUME)
+    if os.environ.get('LOCAL') == "true":
+        convert_lossless_to_mp3(os.path.join(ROOT_DIR, "test_data"),
+                                os.path.join(ROOT_DIR, "test_data_out"))
     else:
-        # run for local development, no docker, no global ffmpeg installed
-        convert_flac_to_mp3(os.path.join(ROOT_DIR, "test_data"),
-                            os.path.join(ROOT_DIR, "test_data_out"))
+        convert_lossless_to_mp3(env_settings.FLAC_VOLUME, env_settings.MP3_VOLUME)
+

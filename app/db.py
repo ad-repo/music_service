@@ -6,10 +6,14 @@ import subprocess
 from typing import Optional, Dict, Any
 
 from helpers import CaseInsensitiveDict, NoMetadataException
+from settings import Settings
 
+env_settings = Settings()
+for setting in env_settings:
+    print(setting)
 
 def create_db():
-    conn = sqlite3.connect(os.environ.get('DATABASE_FILE'))
+    conn = sqlite3.connect(env_settings.DATABASE_FILE)
     cursor = conn.cursor()
 
     # SQL command to create the 'track' table if it does not exist
@@ -61,7 +65,7 @@ class Track:
             logging.warning(logging.warning(f"no metadata for {self.flac_filename}"))
         else:
             logging.info(f"inserting in db - {self.flac_filename}")
-            conn = sqlite3.connect(os.environ.get('DATABASE_FILE'))
+            conn = sqlite3.connect(env_settings.DATABASE_FILE)
             cursor = conn.cursor()
 
             insert_query = f'''
@@ -98,7 +102,7 @@ class Track:
 
     def check_if_metadata_exists(self, flac_filename) -> bool:
         query = "SELECT artist FROM track WHERE flac_filename = ?"
-        conn = sqlite3.connect(os.environ.get('DATABASE_FILE'))
+        conn = sqlite3.connect(env_settings.DATABASE_FILE)
         cursor = conn.cursor()
 
         cursor.execute(query, (flac_filename,))
@@ -111,7 +115,7 @@ class Track:
 
     @staticmethod
     def get_metadata(flac_file, mp3_file) -> Dict[str, Any]:
-        command = [os.environ.get("FFPROBE"), "-v", "quiet", "-print_format", "json", "-show_format", flac_file]
+        command = [env_settings.FFPROBE, "-v", "quiet", "-print_format", "json", "-show_format", flac_file]
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         if result.returncode != 0:

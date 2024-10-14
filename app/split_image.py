@@ -1,15 +1,20 @@
+import argparse
 import logging
 import os
 import shutil
 import subprocess
 import sys
 import uuid
-import argparse
 from datetime import datetime
 
-import chardet
+from constants import SPLIT_FILE_TYPES, FLAC_RENAME_STR, PLEX_LOSSLESS_LIB
+from settings import Settings
 
-from constants import SPLIT_DIR, FLAC_RENAME_STR, SPLIT_FILE_TYPES, ROOT_DIR
+env_settings = Settings()
+for setting in env_settings:
+    print(setting)
+
+import chardet
 
 # Configure logging to capture both stdout and stderr
 logging.basicConfig(
@@ -82,7 +87,7 @@ def extract_times(parts):
 def get_track_length(file_path):
     formatted_duration = None
     result = subprocess.run(
-        [os.environ.get("FFMPEG"), '-i', file_path],
+        [env_settings.FFMPEG, '-i', file_path],
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
         text=True
@@ -237,7 +242,7 @@ def get_map(audio_track_only):
 
 def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio_track_only):
     if flac_file.endswith('.flac'):
-        cmd = [os.environ.get("FFMPEG"),
+        cmd = [env_settings.FFMPEG,
                "-hide_banner",
                "-ss", stime,
                "-y",
@@ -252,7 +257,7 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio
                flac_outfile]
 
     elif flac_file.endswith('.ape'):
-        cmd = [os.environ.get("FFMPEG"),
+        cmd = [env_settings.FFMPEG,
                "-hide_banner",
                "-ss", stime,
                "-y",
@@ -267,7 +272,7 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio
                flac_outfile]
 
     elif flac_file.endswith('.wv'):
-        cmd = [os.environ.get("FFMPEG"),
+        cmd = [env_settings.FFMPEG,
                "-hide_banner",
                "-ss", stime,
                "-y",
@@ -281,7 +286,7 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio
                "-metadata", f'track={pos}',
                flac_outfile]
     else:
-        cmd = [os.environ.get("FFMPEG"),
+        cmd = [env_settings.FFMPEG,
                "-hide_banner",
                "-ss", stime,
                "-y",
@@ -294,6 +299,9 @@ def create_track(flac_file, stime, diff, title, artist, pos, flac_outfile, audio
                "-metadata", artist,
                "-metadata", f'track={pos}',
                flac_outfile]
+
+    # print(cmd)
+    # print(os.path.abspath(os.curdir));exit()
 
     job = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     logging.debug(f'FFmpeg job output: {job}')
@@ -377,6 +385,7 @@ def parse_folder(cue_file, base_dir, sim_mode):
 
 
 def find_music_folders(base_dir, sim_mode=False):
+    print(base_dir)
     for root, dirs, files in os.walk(base_dir):
         for file in files:
             if file.endswith(".cue"):
@@ -388,19 +397,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Optional cue_dir argument example")
     parser.add_argument('--cue_dir', type=str, help="Optional cue directory", default=None)
     args = parser.parse_args()
-    if args.cue_dir is None:
-        find_music_folders(os.path.join(ROOT_DIR, SPLIT_DIR))
-    else:
-        plex_lib_dir_name = 'AD-FLAC'
-        docker_lib_name = 'flac_dir'
 
-        cue_dir = args.cue_dir.replace(plex_lib_dir_name, docker_lib_name) if plex_lib_dir_name in args.cue_dir \
-            else args.cue_dir
+    if args.cue_dir is None:
+        find_music_folders(env_settings.SPLIT_VOLUME)
+    else:
+        cue_dir = args.cue_dir.replace(PLEX_LOSSLESS_LIB, env_settings.FLAC_VOLUME) if (PLEX_LOSSLESS_LIB in
+                                                                                        args.cue_dir) else args.cue_dir
 
         print(f'Found cue dir: {args.cue_dir} : {cue_dir}')
-        print(args.cue_dir, os.path.exists(cue_dir))
+        print(cue_dir, os.path.exists(cue_dir))
 
-        # set new not defualt base dir to search
-        SPLIT_DIR = cue_dir
-
-        find_music_folders(args.cue_dir)
+        find_music_folders(cue_dir)
