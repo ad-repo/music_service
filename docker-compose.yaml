@@ -12,8 +12,6 @@ services:
       - PGID=0
       - FLASK_APP=run.py
     command: python -u run.py
-    env_file:
-      - .env-docker
     volumes:
       - "${SPLIT_SEARCH_DIR}:${SPLIT_VOLUME}"
       - "${LOSSLESS_IN_DIR}:${FLAC_VOLUME}"
