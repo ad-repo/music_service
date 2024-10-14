@@ -47,9 +47,9 @@ class Settings(BaseSettings):
 
     class Config:
         if os.environ.get('LOCAL') == 'true':
-            env_file = '/Users/ad/Projects/music_service/.env-local'
+            env_file = '.env-local'
         else:
-            env_file = '/Users/ad/Projects/music_service/.env-docker'
+            env_file = '.env-docker'
 
     @validator('DATABASE_FILE', pre=True, always=True)
     def set_database_full_path(cls, value, values):
