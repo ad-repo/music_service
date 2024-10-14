@@ -1,6 +1,5 @@
 flask==3.0.3
 flasgger==0.9.7.1
 chardet
-python-dotenv
 pydantic_settings
 pydantic
