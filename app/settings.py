@@ -53,7 +53,7 @@ class Settings(BaseSettings):
             env_file = '../.env-local'
         else:
             # env_file = os.path.join(ROOT_DIR, 'app', '../.env-docker')
-            env_file = '../.env-docker'
+            env_file = '../.env'
         print(env_file, os.path.exists(env_file))
 
     @validator('DATABASE_FILE', pre=True, always=True)
