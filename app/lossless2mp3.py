@@ -72,7 +72,7 @@ def process_file(file: str, root: str, source_dir: str, dest_dir: str):
         relative_path = os.path.relpath(root, source_dir)
         mp3_dir = os.path.join(dest_dir, relative_path)
         mp3_path = os.path.join(mp3_dir, os.path.splitext(file)[0] + '.mp3')
-        go(mp3_dir, flac_path, mp3_path, dest_dir)  # Assuming 'go' handles conversion
+        go(mp3_dir, flac_path, mp3_path, dest_dir)
 
 # The walk function with multithreading
 def walk(source_dir: str, dest_dir: str, max_workers=4):
