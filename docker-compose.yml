@@ -2,7 +2,8 @@ version: '3.8'
 
 services:
   music-service:
-    build: .
+    build:
+    image: music-service:latest
     network_mode: "host"
     ports:
       - "9111:9111"
