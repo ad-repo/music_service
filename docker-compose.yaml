@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  web:
+  music-service:
     build: .
     network_mode: "host"
     ports:
