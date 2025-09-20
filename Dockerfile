@@ -27,5 +27,5 @@ EXPOSE 9111
 ENV FLASK_APP=run.py
 
 # Run the command to start the Flask app
-#CMD ["python", "-u", "run.py"]
-CMD ["tail", "-f", "/dev/null"]
+CMD ["python", "-u", "run.py"]
+#CMD ["tail", "-f", "/dev/null"]
