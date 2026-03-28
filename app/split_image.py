@@ -345,7 +345,14 @@ def run_service(cue_file, music_file, music_outdir_fpath, base_dir, ext, sim_mod
 
 
 def parse_cue_file_reference(cue_file):
-    """Return the filename from the first FILE directive in a CUE sheet."""
+    """Return (filename, file_count) from FILE directives in a CUE sheet.
+
+    Returns the first referenced filename and the total count of FILE lines.
+    A single-file CUE sheet has exactly 1 FILE directive pointing to an audio
+    image; multi-file CUE sheets have one FILE per track and cannot be split.
+    """
+    first_ref = None
+    count = 0
     try:
         encoding = detect_encoding(cue_file) or 'utf-8'
         with open(cue_file, 'r', encoding=encoding, errors='ignore') as f:
@@ -353,14 +360,21 @@ def parse_cue_file_reference(cue_file):
                 if line.strip().upper().startswith('FILE '):
                     parts = line.strip().split('"')
                     if len(parts) >= 2:
-                        return parts[1]
+                        if first_ref is None:
+                            first_ref = parts[1]
+                        count += 1
     except Exception:
         pass
-    return None
+    return first_ref, count
 
 
 def find_music_file(cue_file, music_indir_fpath):
-    cue_ref = parse_cue_file_reference(cue_file)
+    cue_ref, file_count = parse_cue_file_reference(cue_file)
+
+    # Multi-file CUE sheets (one FILE per track) are not splittable images
+    if file_count > 1:
+        return None, None
+
     if cue_ref:
         ref_path = os.path.join(music_indir_fpath, cue_ref)
         ref_ext = os.path.splitext(cue_ref)[1].lstrip('.')
