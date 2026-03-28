@@ -344,20 +344,69 @@ def run_service(cue_file, music_file, music_outdir_fpath, base_dir, ext, sim_mod
         cleanup(music_file, base_dir)
 
 
+def parse_cue_file_reference(cue_file):
+    """Return (filename, file_count) from FILE directives in a CUE sheet.
+
+    Returns the first referenced filename and the total count of FILE lines.
+    A single-file CUE sheet has exactly 1 FILE directive pointing to an audio
+    image; multi-file CUE sheets have one FILE per track and cannot be split.
+    """
+    first_ref = None
+    count = 0
+    try:
+        encoding = detect_encoding(cue_file) or 'utf-8'
+        with open(cue_file, 'r', encoding=encoding, errors='ignore') as f:
+            for line in f:
+                if line.strip().upper().startswith('FILE '):
+                    parts = line.strip().split('"')
+                    if len(parts) >= 2:
+                        if first_ref is None:
+                            first_ref = parts[1]
+                        count += 1
+    except Exception:
+        pass
+    return first_ref, count
+
+
 def find_music_file(cue_file, music_indir_fpath):
+    cue_ref, file_count = parse_cue_file_reference(cue_file)
+
+    # Multi-file CUE sheets (one FILE per track) are not splittable images
+    if file_count > 1:
+        return None, None
+
+    if cue_ref:
+        ref_path = os.path.join(music_indir_fpath, cue_ref)
+        ref_ext = os.path.splitext(cue_ref)[1].lstrip('.')
+
+        # Step 1: exact match from FILE directive
+        if os.path.exists(ref_path) and ref_ext in SPLIT_FILE_TYPES:
+            return ref_path, ref_ext
+
+        # Step 2: same stem, try each supported extension (e.g. .wav -> .wv/.flac)
+        ref_stem = os.path.splitext(ref_path)[0]
+        for file_ext in SPLIT_FILE_TYPES:
+            candidate = f"{ref_stem}.{file_ext}"
+            if os.path.exists(candidate):
+                return candidate, file_ext
+
+        # Step 3: FILE directive exists but names differ — if exactly one supported
+        # audio file is present in the folder, it must be the image
+        for file_ext in SPLIT_FILE_TYPES:
+            matches = [f for f in os.listdir(music_indir_fpath) if f.endswith(f'.{file_ext}')]
+            if len(matches) == 1:
+                return os.path.join(music_indir_fpath, matches[0]), file_ext
+
+    # Fallback: derive audio filename from CUE filename stem
     for file_ext in SPLIT_FILE_TYPES:
         root, ext = os.path.splitext(cue_file)
-
         if root.endswith(file_ext):
             music_file = root
         else:
             music_file = f"{root}.{file_ext}"
-
         music_file = os.path.join(music_indir_fpath, music_file)
         logging.debug(f'-- {music_file}')
         if os.path.exists(music_file):
-            music_file.replace("'", "")
-            music_file.replace("'", "")
             return music_file, file_ext
     return None, None
 
