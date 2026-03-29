@@ -96,11 +96,13 @@ def get_track_length(file_path):
     logging.debug(f'Duration line: {duration_line}')
     if duration_line:
         try:
-            print("1")
             return get_track_length_1(duration_line)
-        except Exception as e:
-            print("2")
+        except Exception:
+            pass
+        try:
             return get_track_length_2(duration_line)
+        except Exception:
+            pass
     return None
 
 
@@ -439,7 +441,10 @@ def find_music_folders(base_dir, sim_mode=False):
         for file in files:
             if file.endswith(".cue"):
                 logging.info(f"Found cue file: {file}, {root}")
-                parse_folder(os.path.join(root, file), base_dir, sim_mode)
+                try:
+                    parse_folder(os.path.join(root, file), base_dir, sim_mode)
+                except Exception as e:
+                    logging.error(f"Failed to process {os.path.join(root, file)}: {e}", exc_info=True)
 
 
 if __name__ == '__main__':
